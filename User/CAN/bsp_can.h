@@ -9,10 +9,14 @@
 
 #include "stm32f4xx_hal_can.h"
 
+// CAN1:
 # define  CAN_3508_M1_ID    0x201
 # define  CAN_3508_M2_ID    0x202
 # define  CAN_2006_M3_ID    0x203
-# define  CAN_6020_M5_ID    0x208
+
+// CAN2:
+# define  CAN_6020_M4_ID    0x204    //204+1
+# define  CAN_4310_M5_ID    0x205
 
 
 typedef struct {
@@ -28,6 +32,7 @@ extern motor_measure_t motor_gimbal[8];
 
 void CAN_Filter_Init(void);
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan);
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan);
 void get_motor_measure(motor_measure_t *motor_measure,uint32_t StdId, uint8_t rx_data[]);
 
 #endif //MYCAN_H
