@@ -35,3 +35,18 @@ void rcDecode(void) {
  *  ch2: -660        660   | ch4: -660        660
  *             -660        |            -660
  */
+
+//使用方法:
+// d.bus
+// RC_t RC;
+// uint8_t RC_Data[18] = {0};
+// 打开dma轮询
+
+// //Receive_DMA初始化
+// HAL_UART_Receive_DMA(&huart3, RC_Data, 18);
+//
+// // 添加回调函数
+// void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+//     (void)huart;   //消除未使用参数警告
+//     rcDecode();
+// }
