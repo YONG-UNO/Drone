@@ -38,3 +38,9 @@ git rm --cached main.exe   # 移除文件跟踪
 ## clion使用
 
 ### 使用shift + ctrl + R:进行替换和查找
+### clion自动生成注释
+### Doxygen 风格注释：
+自动生成方式：输入 “/**” 或 “/!” 后按回车键，CLion 会根据函数的参数、返回值等信息自动生成注释框架。例如对于函数 “int add (int a, int b);”，会生成 “ @param a First integer parameter.* @param b Second integer parameter.* @return The result of adding 'a' and 'b'.” 这样的注释。
+
+## Ozone使用
+### 没写
