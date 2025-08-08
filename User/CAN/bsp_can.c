@@ -164,15 +164,17 @@ void sendCmdShoot(int16_t frictionWheel_l, int16_t frictionWheel_r, int16_t dial
     tx_header.StdId = 0x200;
     tx_header.IDE   = CAN_ID_STD;
     tx_header.RTR   = CAN_RTR_DATA;
-    tx_header.DLC   = 0x06;
+    tx_header.DLC   = 0x08;
 
-    uint8_t shoot_tx_message[6] = {0};
+    uint8_t shoot_tx_message[8] = {0};
     shoot_tx_message[0] = frictionWheel_l >> 8;
     shoot_tx_message[1] = frictionWheel_l;
     shoot_tx_message[2] = frictionWheel_r >> 8;
     shoot_tx_message[3] = frictionWheel_r;
     shoot_tx_message[4] = dial >> 8;
     shoot_tx_message[5] = dial;
+    shoot_tx_message[6] = 0;
+    shoot_tx_message[7] = 0;
 
     HAL_CAN_AddTxMessage(&hcan1,&tx_header,shoot_tx_message,&send_mail_box);
 }
