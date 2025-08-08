@@ -34,3 +34,7 @@ pid_data.csv   # 忽略特定CSV文件
 git rm -r --cached .idea/  # 移除目录跟踪
 git rm --cached main.exe   # 移除文件跟踪
 ```
+
+## clion使用
+
+### 使用shift + ctrl + R:进行替换和查找
