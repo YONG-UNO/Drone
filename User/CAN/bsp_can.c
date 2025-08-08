@@ -23,6 +23,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     CAN_RxHeaderTypeDef rx_header;
 
     uint8_t rx_data[8];                                                 //存储收到的CAN数据场(CAN最大支持8Byte数据)
+    uint8_t n;                                                          //C语言标准规定:case后面不能直接声明变量
 
     HAL_CAN_GetRxMessage(hcan,CAN_RX_FIFO0,&rx_header,rx_data);   //hcan指针由回调函数触发后直接传入,rx_data[]是个语法糖,本质希望你传入指针
 
@@ -30,7 +31,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
         case CAN_3508_M1_ID:                                            //当收到的CAN消息ID(rx_header.StdId)
         case CAN_3508_M2_ID:                                            //与switch中的任意一个ID匹配时,就会执行{}中的代码
         case CAN_2006_M3_ID:
-            uint8_t n = rx_header.StdId - 0x201;                        //3508 & 2006: 0x200+n
+            n = rx_header.StdId - 0x201;                        //3508 & 2006: 0x200+n
             get_motor_measure(&motor_gimbal[n], rx_header.StdId ,rx_data);
             break;
 
@@ -46,12 +47,13 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     CAN_RxHeaderTypeDef rx_header;
 
     uint8_t rx_data[8];                                                 //存储收到的CAN数据场(CAN最大支持8Byte数据)
+    uint8_t n;                                                          //C语言标准规定:case后面不能直接声明变量
 
     HAL_CAN_GetRxMessage(hcan,CAN_RX_FIFO1,&rx_header,rx_data);   //hcan指针由回调函数触发后直接传入,rx_data[]是个语法糖,本质希望你传入指针
 
     switch (rx_header.StdId) {
         case CAN_6020_M4_ID:
-            uint8_t n = rx_header.StdId - 0x202;                        // 6020: 0x204+1 - 0x202  = 3
+            n = rx_header.StdId - 0x202;                        // 6020: 0x204+1 - 0x202  = 3
             get_motor_measure(&motor_gimbal[n], rx_header.StdId ,rx_data);
             break;
 
