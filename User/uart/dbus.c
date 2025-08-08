@@ -28,11 +28,18 @@ void rcDecode(void) {
 //补充:错误消息
 //侧拨轮
 
-/* 摇杆映射
+/*
+ * 拨杆映射
+ *          s1:                       s2:
+ *      -->  1                    -->  1
+ *      -->  3                    -->  3
+ *      -->  2                    -->  2
+ *
+ * 摇杆映射
  *            左摇杆:       |           右摇杆:
  *             ch3:        |            ch1:
  *             660         |            660
- *  ch2: -660        660   | ch4: -660        660
+ *  ch2: -660        660   | ch0: -660        660
  *             -660        |            -660
  */
 
@@ -41,7 +48,6 @@ void rcDecode(void) {
 // RC_t RC;
 // uint8_t RC_Data[18] = {0};
 // 打开dma轮询
-
 // //Receive_DMA初始化
 // HAL_UART_Receive_DMA(&huart3, RC_Data, 18);
 //
