@@ -157,3 +157,22 @@ void CAN_Filter_Init(void)
     //     Error_Handler();
     // }
 }
+
+void sendCmdShoot(int16_t frictionWheel_l, int16_t frictionWheel_r, int16_t dial) {
+    uint32_t send_mail_box;
+    CAN_TxHeaderTypeDef tx_header;
+    tx_header.StdId = 0x200;
+    tx_header.IDE   = CAN_ID_STD;
+    tx_header.RTR   = CAN_RTR_DATA;
+    tx_header.DLC   = 0x06;
+
+    uint8_t shoot_tx_message[6] = {0};
+    shoot_tx_message[0] = frictionWheel_l >> 8;
+    shoot_tx_message[1] = frictionWheel_l;
+    shoot_tx_message[2] = frictionWheel_r >> 8;
+    shoot_tx_message[3] = frictionWheel_r;
+    shoot_tx_message[4] = dial >> 8;
+    shoot_tx_message[5] = dial;
+
+    HAL_CAN_AddTxMessage(&hcan1,&tx_header,shoot_tx_message,&send_mail_box);
+}

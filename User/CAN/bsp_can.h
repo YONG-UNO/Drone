@@ -35,4 +35,6 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan);
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan);
 void get_motor_measure(motor_measure_t *motor_measure,uint32_t StdId, uint8_t rx_data[]);
 
+void sendCmdShoot(int16_t frictionWheel_l, int16_t frictionWheel_r, int16_t dial);
+
 #endif //MYCAN_H
