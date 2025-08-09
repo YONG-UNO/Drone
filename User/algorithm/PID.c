@@ -1,7 +1,6 @@
 //
 // Created by DingYong on 25-8-8.
 //
-// 后续补充:使用增量式pid 使用枚举enum
 
 
 #include "PID.h"
@@ -113,21 +112,22 @@ float pidSpeed(pid_t *pid, const float target, const float feedback) {
  * @param angle_feedback
  * @param angle_target
  * @param speed_feedback
- * @param max_speed
+ * @param speed_max
  * @return
  */
 float pidCascade(pid_t *angle_pid, pid_t *speed_pid,
-                 float angle_feedback, float angle_target,
-                 float speed_feedback, float max_speed) {
+                 const float angle_target, float const angle_feedback,
+                 float const speed_feedback, float const speed_max) {
     // pidAngle 计算得到 pidSpeed 的target
     float speed_target = pidAngle(angle_pid, angle_target, angle_feedback);
 
     // 限制目标速度
-    speed_target = setOutLimit(speed_target, max_speed, -max_speed);
+    speed_target = setOutLimit(speed_target, speed_max, -speed_max);
 
     // pidAngle 计算得到最后电流值(扭矩)
-    return pidSpeed(speed_pid, speed_target, speed_feedback);
+    float current = pidSpeed(speed_pid, speed_target, speed_feedback);
 
+    return current;
 }
 
 /**
