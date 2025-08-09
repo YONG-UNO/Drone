@@ -32,7 +32,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
         case CAN_3508_M2_ID:                                            //与switch中的任意一个ID匹配时,就会执行{}中的代码
         case CAN_2006_M3_ID:
             n = rx_header.StdId - 0x201;                        //3508 & 2006: 0x200+n
-            get_motor_measure(&motor_gimbal[n], rx_header.StdId ,rx_data);
+            get_motor_measure(&motor_measure[n], rx_header.StdId ,rx_data);
             break;
 
         default:
@@ -54,7 +54,7 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     switch (rx_header.StdId) {
         case CAN_6020_M4_ID:
             n = rx_header.StdId - 0x202;                        // 6020: 0x204+1 - 0x202  = 3
-            get_motor_measure(&motor_gimbal[n], rx_header.StdId ,rx_data);
+            get_motor_measure(&motor_measure[n], rx_header.StdId ,rx_data);
             break;
 
         default:
@@ -180,3 +180,47 @@ void sendCmdShoot(int16_t frictionWheel_l, int16_t frictionWheel_r, int16_t dial
 
     HAL_CAN_AddTxMessage(&hcan1,&tx_header,shoot_tx_message,&send_mail_box);
 }
+
+// //d.bus
+// RC_t RC;
+// uint8_t RC_Data[18] = {0};
+//
+// //can
+// motor_measure_t motor_measure[8] = {0};
+//
+// // pid
+// pid_t motor_2006_M3;
+// pid_t angle_pid;
+// pid_t speed_pid;
+// /* USER CODE END PT
+//
+//
+// pidInit(&angle_pid, 10, 0, 0, 1000, 500);
+// pidInit(&speed_pid, 10, 0, 0, 1000, 500);
+//
+//
+// CAN_Filter_Init();
+//
+// float input = 0;
+//
+//
+// for (;;)
+//   {
+//     input = pidCascade(&angle_pid, &speed_pid,
+//                 5000,
+//                 motor_measure[2].ecd,
+//                 motor_measure[2].speed_rpm,
+//                 100);
+//
+//     if (RC.s2 == 1) {
+//       // motor_2006_M3.output = RC.ch1;
+//     sendCmdShoot(0,0,input);
+//     }else if (RC.s2 == 3 || RC.s2 == 2) {
+//       sendCmdShoot(0,0,0);
+//     }
+//
+//     HAL_Delay(10);
+//     /* USER CODE END WHILE */
+//
+// /* USER CODE BEGIN 3 */
+//   }

@@ -36,8 +36,9 @@ enable_language(C ASM)
 
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME}
-        User/algorithm/PID.c
-        User/algorithm/PID.h)
+        User/connectivity/iic/bsp_iic.c
+        User/connectivity/iic/bsp_iic.h
+)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
@@ -50,15 +51,17 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
-        User/CAN/bsp_can.c
-        User/uart/dbus.c
+        User/algorithm/PID.c
+        User/connectivity/CAN/bsp_can.c
+        User/connectivity/uart/dbus.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
-    (${CMAKE_SOURCE_DIR})User/CAN
-    (${CMAKE_SOURCE_DIR})User/uart
+    (${CMAKE_SOURCE_DIR}) User/algorithm
+    (${CMAKE_SOURCE_DIR}) User/connectivity/CAN
+    (${CMAKE_SOURCE_DIR}) User/connectivity/uart
 )
 
 # Add project symbols (macros)

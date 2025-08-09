@@ -28,7 +28,7 @@ typedef struct {
     uint16_t torque;
 } motor_measure_t;
 
-extern motor_measure_t motor_gimbal[8];
+extern motor_measure_t motor_measure[8];
 
 void CAN_Filter_Init(void);
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan);
