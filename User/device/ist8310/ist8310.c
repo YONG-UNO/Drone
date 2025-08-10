@@ -54,15 +54,16 @@ void ist8310ReadRegister(float magneticField[3]) {                    // 数组�
     uint8_t rx_buffer[6];
     int16_t temporary_ist8310_data = 0;                               // 临时变量,用于暂存传感器输出的原始16bit数据(未转换成uT的磁场强度)
 
-    ist8310ReadRegisterMultiple(0x03, rx_buffer, 6);   // 将读到的6给寄存器数据存入接收缓冲区
+    ist8310ReadRegisterMultiple(0x03, rx_buffer, 6);   // 将读到的6个寄存器数据存入接收缓冲区
                                                                       // (0x03 -> 0x08 | DATAXL -> DATAZH) (x轴第八位 -> z轴高八位)
-    temporary_ist8310_data = ((uint16_t)rx_buffer[1] << 8 | (uint16_t)rx_buffer[0]);
+
+    temporary_ist8310_data = ((uint16_t)rx_buffer[1] << 8 | (uint16_t)rx_buffer[0]);  // X轴:[-1600uT,1600uT]
     magneticField[0] = (float)temporary_ist8310_data * MAG_SEN;
 
-    temporary_ist8310_data = ((uint16_t)rx_buffer[3] << 8 | (uint16_t)rx_buffer[2]);
+    temporary_ist8310_data = ((uint16_t)rx_buffer[3] << 8 | (uint16_t)rx_buffer[2]);  // Y轴:[-1600uT,1600uT]
     magneticField[1] = temporary_ist8310_data * MAG_SEN;
 
-    temporary_ist8310_data = ((uint16_t)rx_buffer[5] << 8 | (uint16_t)rx_buffer[4]);
+    temporary_ist8310_data = ((uint16_t)rx_buffer[5] << 8 | (uint16_t)rx_buffer[4]);  // Z轴:[-2500uT,2500uT]
     magneticField[2] = temporary_ist8310_data * MAG_SEN;
 }
 
