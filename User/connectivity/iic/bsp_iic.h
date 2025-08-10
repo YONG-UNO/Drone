@@ -8,7 +8,7 @@
 #define IST8310_IIC_ADDRESS = 0x0E
 #include <stdint.h>
 
-void ist8310GpioInit(void);   // 初始化ist8310的gpio(cubeMX已经配好)
+void ist8310GpioInit(void);   // 初始化ist8310的gpio(cubeMX已经配了)
 void ist8310ComInit(void);    // 初始化ist8310的iic设置(cubeMX已经配好)
 
 uint8_t ist8310ReadRegisterSingle(uint8_t MemAddress );  // 通过iic读取ist8310的一个数据
