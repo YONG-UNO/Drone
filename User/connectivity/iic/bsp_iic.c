@@ -91,8 +91,9 @@ void ist8310ReadRegisterMultiple(uint8_t MemAddress, uint8_t *buf, uint8_t len){
   *
   * @retval HAL status
   */
-void ist8310WriteRegisterSingle(uint8_t MemAddress, uint8_t *data) {
-    HAL_I2C_Mem_Write(&hi2c3, IST8310_IIC_ADDRESS << 1, I2C_MEMADD_SIZE_8BIT, 1, data, 1, 10);
+void ist8310WriteRegisterSingle(uint8_t MemAddress, uint8_t const data) {
+    uint8_t data_bur = data;          // 创建缓冲区(单个字节)
+    HAL_I2C_Mem_Write(&hi2c3, IST8310_IIC_ADDRESS << 1, MemAddress, I2C_MEMADD_SIZE_8BIT, &data_bur, 1, 10);
 }
 
 /**
@@ -102,7 +103,7 @@ void ist8310WriteRegisterSingle(uint8_t MemAddress, uint8_t *data) {
  * @param len  写入数据长度
  */
 void ist8310WriteRegisterMultiple(uint8_t MemAddress, uint8_t *data, uint8_t len) {
-    HAL_I2C_Mem_Write(&hi2c3, IST8310_IIC_ADDRESS << 1, I2C_MEMADD_SIZE_8BIT, 1, data, len, 10);
+    HAL_I2C_Mem_Write(&hi2c3, IST8310_IIC_ADDRESS << 1, MemAddress, I2C_MEMADD_SIZE_8BIT, data, len, 10);
 }
 
 /**
@@ -132,7 +133,7 @@ void HAL_Delay_us(uint16_t us)
     uint32_t told = 0, tnow = 0, tcnt = 0;
     uint32_t reload = 0;
     reload = SysTick->LOAD;       // 获取SysTick最大重装载值(二十四位递减器: 2^24 - 1 = 16777215) (计数到0后会从从该值开始递减)
-    ticks = us * 72;              // 假设系统时钟为72MHz(1e6 us = 72e6 时钟周期 | 1us = 72时钟周期)
+    ticks = us * 168;              // 假设系统时钟为72MHz(1e6 us = 72e6 时钟周期 | 1us = 72时钟周期)
     told = SysTick->VAL;          // 实时存储当前计数器的数值(递减过程中不断变化)
     while (1)
     {
