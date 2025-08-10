@@ -4,7 +4,106 @@
 
 #include "bsp_iic.h"
 
+#include "i2c.h"
 #include "stm32f4xx_hal_gpio.h"
+
+
+// 占位接口:用于初始化ist8310相关GPIO(复位引脚RSTN,DTRY等)
+void ist8310GpioInit(void) {
+
+}
+
+// 占位接口:用于配置IIC时钟频率,引脚复用等
+void ist8310ComInit(void) {
+
+}
+
+/**
+ *@brief read a byte of ist8310 by iic
+  * @brief  Read an amount of data in blocking mode from a specific memory address
+  * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
+  *         the configuration information for the specified I2C.
+  *         IIC句柄(如已经初始化的IIC外设,如&hi2c3)
+  *
+  * @param  DevAddress Target device address: The device 7 bits address value
+  *         in datasheet must be shifted to the left before calling the interface
+  *         从设备8位地址(7位设备地址左移一位,最低位预留为读写位)
+  *
+  * @param  MemAddress Internal memory address
+  *         目标寄存器地址(ist8310 的 0x03寄存器)
+  *
+  * @param  MemAddSize Size of internal memory address
+  *         寄存器地址长度(8bit: I2C_MEMADD_SIZE_8BIT; 16bit: I2C_MEMADD_SIZE_16BIT)
+  *
+  * @param  pData Pointer to data buffer
+  *         接收数据的缓冲区(用于存储读取到的寄存器数据)
+  *
+  * @param  Size Amount of data to be sent
+  *         要读取的数据长度(字节数)
+  *
+  * @param  Timeout Timeout duration
+  *         超时时间(毫秒, 超过此时间未完成则返回错误)
+  *
+  * @retval HAL status
+  *
+  *@retrval value of the register
+  */
+uint8_t ist8310ReadRegisterSingle(uint8_t MemAddress ) {
+    uint8_t result = 0;
+    HAL_I2C_Mem_Read(&hi2c3, IST8310_IIC_ADDRESS << 1, MemAddress,I2C_MEMADD_SIZE_8BIT, &result, 1, 10);
+    return result;
+}
+
+/**
+ * @brief 通过iic读取ist8310的多个字节
+ * @param MemAddress 寄存器开始地址
+ * @param buf 读取数据缓冲区
+ * @param len 读取字节总数
+ */
+void ist8310ReadRegisterMultiple(uint8_t MemAddress, uint8_t *buf, uint8_t len){
+    HAL_I2C_Mem_Read(&hi2c3, IST8310_IIC_ADDRESS << 1, MemAddress, I2C_MEMADD_SIZE_8BIT, buf, len, 10);
+}
+
+/**
+  * @brief  Write an amount of data in blocking mode to a specific memory address
+  * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
+  *         the configuration information for the specified I2C.
+  *         IIC句柄(如已经初始化的IIC外设,如&hi2c3)
+  *
+  * @param  DevAddress Target device address: The device 7 bits address value
+  *         in datasheet must be shifted to the left before calling the interface
+  *         从设备8位地址(7位设备地址左移一位,最低位预留为读写位)
+  *
+  * @param  MemAddress Internal memory address
+  *         目标寄存器地址(ist8310 的 0x03寄存器)
+  *
+  * @param  MemAddSize Size of internal memory address
+  *         寄存器地址长度(8bit: I2C_MEMADD_SIZE_8BIT; 16bit: I2C_MEMADD_SIZE_16BIT)
+  *
+  * @param  pData Pointer to data buffer
+  *         指向待写入数据的缓冲区指针(如存放配置值的数组)
+  *
+  * @param  Size Amount of data to be sent
+  *         要发送的数据字节数(如写入一个字节的配置值,则为1)
+  *
+  * @param  Timeout Timeout duration
+  *         超时时间(ms):若操作超过此时间未完成,函数会返回超时错误
+  *
+  * @retval HAL status
+  */
+void ist8310WriteRegisterSingle(uint8_t MemAddress, uint8_t *data) {
+    HAL_I2C_Mem_Write(&hi2c3, IST8310_IIC_ADDRESS << 1, I2C_MEMADD_SIZE_8BIT, 1, data, 1, 10);
+}
+
+/**
+ * @brief 通过iic向ist8310写入多个数据
+ * @param MemAddress 寄存器开始地址
+ * @param data 写入数据缓冲区
+ * @param len  写入数据长度
+ */
+void ist8310WriteRegisterMultiple(uint8_t MemAddress, uint8_t *data, uint8_t len) {
+    HAL_I2C_Mem_Write(&hi2c3, IST8310_IIC_ADDRESS << 1, I2C_MEMADD_SIZE_8BIT, 1, data, len, 10);
+}
 
 /**
   * @brief  设置IST8310磁力计的复位引脚状态
@@ -12,8 +111,12 @@
   * @note   复位引脚连接到GPIOG的PIN6
   * @retval None
   */
-void ist8310ResetStatus(GPIO_PinState pinState) {
-    HAL_GPIO_WritePin(GPIOG, GPIO_PIN_6, pinState);
+void ist8310_RST_H (void) {
+    HAL_GPIO_WritePin(GPIOG, GPIO_PIN_6, GPIO_PIN_SET);
+}
+
+void ist8310_RST_L (void) {
+    HAL_GPIO_WritePin(GPIOG, GPIO_PIN_6, GPIO_PIN_RESET);
 }
 
 
