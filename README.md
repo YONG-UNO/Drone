@@ -1,3 +1,6 @@
+## 书写规范
+### void ist8310ResetStatus(PinState pinState)
+
 ## cmake使用建议
 ### 路径
 ```
@@ -36,6 +39,8 @@ git rm --cached main.exe   # 移除文件跟踪
 ```
 
 ## clion使用
+### 显示变量波形
+#### 1.先添加到wathc 2.右键选择Graph 3.在view菜单里面选择Timeline 4.只选择Data 5.Fit Width | Height
 
 ### 使用shift + ctrl + R:进行替换和查找
 ### clion自动生成注释
