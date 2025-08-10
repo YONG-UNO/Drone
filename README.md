@@ -26,7 +26,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 ## git使用
 ```angular2html
 1.git选择添加版本管理
-2.管理远程:添加仓库地址
+2.管理远程:添加仓库地址  建议使用SSH协议提交(git@github.com:YONG-UNO/XXX.git),避免HTTPS端口限制
 3.新建忽略文件:cmake-build-debug/.gitignore
 
 .idea/         # 忽略CLion配置目录
