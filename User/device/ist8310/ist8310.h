@@ -17,6 +17,6 @@
 #define IST8310_NO_SENSOR        0x02   // 设备寻址失败返回值
 
 uint8_t ist8310Init(void);
-void ist8310ReadRegister(float magneticField[3]);
+void ist8310ReadData(float magneticField[3], float *temperature);
 
 #endif //IST8310_H

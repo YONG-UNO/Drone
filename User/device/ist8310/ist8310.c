@@ -50,28 +50,33 @@ uint8_t ist8310Init(void) {
     return IST8310_OK;                                                             // 全部检测通过则返回IST8310_OK,表示初始化成功
 }
 
-void ist8310ReadRegister(float magneticField[3]) {                    // 数组名函数形参时传入的实际是指向首元素的地址
-    uint8_t rx_buffer[6];
+void ist8310ReadData(float magneticField[3], float *temperature) {                    // 数组名函数形参时传入的实际是指向首元素的地址
+    uint8_t rx_buffer_magn[6];
+    uint8_t rx_buffer_temp[2];
     int16_t temporary_ist8310_data = 0;                               // 临时变量,用于暂存传感器输出的原始16bit数据(未转换成uT的磁场强度)
 
-    ist8310ReadRegisterMultiple(0x03, rx_buffer, 6);   // 将读到的6个寄存器数据存入接收缓冲区
+    ist8310ReadRegisterMultiple(0x03, rx_buffer_magn, 6);   // 将读到的6个寄存器数据存入接收缓冲区
                                                                       // (0x03 -> 0x08 | DATAXL -> DATAZH) (x轴第八位 -> z轴高八位)
+    ist8310ReadRegisterMultiple(0x1C, rx_buffer_temp, 2);
 
-    temporary_ist8310_data = ((uint16_t)rx_buffer[1] << 8 | (uint16_t)rx_buffer[0]);  // X轴:[-1600uT,1600uT]
+    temporary_ist8310_data = ((uint16_t)rx_buffer_magn[1] << 8 | (uint16_t)rx_buffer_magn[0]);  // X轴:[-1600uT,1600uT]
     magneticField[0] = (float)temporary_ist8310_data * MAG_SEN;
 
-    temporary_ist8310_data = ((uint16_t)rx_buffer[3] << 8 | (uint16_t)rx_buffer[2]);  // Y轴:[-1600uT,1600uT]
-    magneticField[1] = temporary_ist8310_data * MAG_SEN;
+    temporary_ist8310_data = (uint16_t)rx_buffer_magn[3] << 8 | (uint16_t)rx_buffer_magn[2];  // Y轴:[-1600uT,1600uT]
+    magneticField[1] = (float)temporary_ist8310_data * MAG_SEN;
 
-    temporary_ist8310_data = ((uint16_t)rx_buffer[5] << 8 | (uint16_t)rx_buffer[4]);  // Z轴:[-2500uT,2500uT]
-    magneticField[2] = temporary_ist8310_data * MAG_SEN;
+    temporary_ist8310_data = (uint16_t)rx_buffer_magn[5] << 8 | (uint16_t)rx_buffer_magn[4];  // Z轴:[-2500uT,2500uT]
+    magneticField[2] = (float)temporary_ist8310_data * MAG_SEN;
+
+    temporary_ist8310_data = (int16_t)rx_buffer_temp[1] << 8 | rx_buffer_temp[0];
+    *temperature = (float)temporary_ist8310_data / 65535.0 * (85 + 40) - 40;      //85℃是最大温度,-40℃是最小温度
 }
 
 // 使用:
 // 在USER CODE BEGIN4
 // void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 //     if (GPIO_Pin == IST8310_DRDY_Pin) {           // 需要根据芯片手册来配置外部终端输入,此处是 下降沿触发
-//         ist8310ReadRegister(magneticField);
+//         ist8310ReadData(magneticField, &temperature);
 //     }
 //  }
 
@@ -81,3 +86,4 @@ void ist8310ReadRegister(float magneticField[3]) {                    // 数组�
 // ist8310Init()    (若初始化失败,可通过返回值来判断)
 
 // 创建全局数组变量magneticField[3] [0]:X [1]:Y (X|Y 量程:+- 1600uT)  [2]:Z (Z 量程:+-2500uT)
+// 创建温度: float temperature
