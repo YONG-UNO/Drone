@@ -37,6 +37,15 @@ void pidReset(pid_t *pid) {
     for (int i = 0; i < 3; i++) pid->error[i] = 0.0f;
 }
 
+/**
+ * @brief pid角度环
+ * @todo 添加增量式
+ * @fixme 添加空指针检测
+ * @param pid
+ * @param target
+ * @param feedback
+ * @return
+ */
 float pidAngle(pid_t *pid, float const target, float const feedback) {
     // 更新error
     pid->error[2] = pid->error[1];
@@ -146,7 +155,7 @@ float setOutLimit(float const input,float const output_max,float const output_mi
 /**
  * @brief 过零保护(8192版本)
  *        角度Pid时，在更新 target和 feedback之后紧接着调用, 处理完再进行PID计算
- * @link https://www.codeleading.com/article/15905617492/
+ * @link  https://www.codeleading.com/article/15905617492/\endlink
  * @param target
  * @param feedback
  */
