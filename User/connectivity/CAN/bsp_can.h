@@ -16,7 +16,7 @@
 
 // CAN2:
 # define  CAN_6020_M4_ID    0x204    //204+1
-# define  CAN_4310_M5_ID    0x205
+# define  CAN_4310_M5_ID    0x11
 
 // dm4310配置
 # define  PMAX              12.5     // 位置
@@ -26,7 +26,7 @@
 
 typedef struct {
     int16_t  ecd;        //6020:机械角[0-8191]
-    int16_t  last_ecd;
+    uint16_t  last_ecd;
     int16_t  speed_rpm;
     int16_t  torque;
     int16_t  given_current;
@@ -41,6 +41,7 @@ typedef struct {
     // uint16_t T_MOS;
     // uint16_t T_Rotor;
 } motor_measure_t;
+
 
 extern motor_measure_t motor_measure[5];
 extern HAL_StatusTypeDef i;

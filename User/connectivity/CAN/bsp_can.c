@@ -7,7 +7,7 @@
 
 #include "can.h"
 #include "main.h"
-#include "User/Math/float_uint_conversion.h"
+#include "../../Math/conversion.h"
 
 // CAN1:fifo0: CAN_3508_M1_ID
 //             CAN_3508_M2_ID
@@ -59,12 +59,12 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
             break;
 
         case CAN_4310_M5_ID:
-            n = rx_header.StdId - 0x05;                         // 4310: 0x11 - 0x07 = 4
+            n = rx_header.StdId - 13;                         // 4310: 0x11 - 13 = 4
             get_motor_measure(&motor_measure[n], rx_header.StdId, rx_data);
             break;
 
         default:
-            break;                                                      //如果一个都不匹配就直接退出
+            break;                                              //如果一个都不匹配就直接退出
     }
 }
 
@@ -99,18 +99,19 @@ void get_motor_measure(motor_measure_t *motor_measure,uint32_t StdId, uint8_t rx
             motor_measure->torque        =  0;
             break;
 
-        case CAN_4310_M5_ID:
-            int16_t position             = (int16_t)rx_data[1] << 8 | (int16_t)rx_data[2];
-            int16_t speed_rpm            = (int16_t)rx_data[3] << 4 | (int16_t)rx_data[4];
-            int16_t torque               = ((int16_t)rx_data[4] << 4 | (int16_t)rx_data[5]) & 0x0FFF;
-            int8_t temperature           = rx_data[7];
-
+        case CAN_4310_M5_ID: {
+            int16_t position             = (int16_t)((rx_data[1] << 8) | (int16_t)rx_data[2]);
+            int speed_rpm                = ((uint16_t)rx_data[3] << 4 | ((uint16_t)rx_data[4] & 0x0F)) & 0xFFF;
+            int torque                   = (((uint16_t)rx_data[4] << 8) & 0x780) | (uint16_t)rx_data[5] & 0xFFF;
+            int temperature              = rx_data[7];
+            motor_measure->ecd           = encoder_convert(position);
             motor_measure->last_ecd      = motor_measure->ecd;
-            motor_measure->ecd           = uint_to_float(position, -PMAX, PMAX, 16);
-            motor_measure->speed_rpm     = uint_to_float(speed_rpm, -VMAX, VMAX,16);
-            motor_measure->torque        = uint_to_float(torque, -TMAX, TMAX, 12);
+            motor_measure->speed_rpm     = uint_to_float(speed_rpm,-VMAX,-VMAX,12);  // VMAX:45
+            motor_measure->torque        = uint_to_float(torque,-TMAX,TMAX,12);      // TMAX:18
             motor_measure->temperature   = temperature;
+            motor_measure->given_current = 0;
             break;
+        }
 
         default:
             motor_measure->ecd = 0;
@@ -121,62 +122,6 @@ void get_motor_measure(motor_measure_t *motor_measure,uint32_t StdId, uint8_t rx
             motor_measure->torque = 0;
     }
 
-}
-
-
-void CAN_Filter_Init(void)
-{
-    CAN_FilterTypeDef can1_filter_st;
-    CAN_FilterTypeDef can2_filter_st;
-
-
-    can1_filter_st.FilterIdHigh = 0x0000;
-    can1_filter_st.FilterIdLow = 0x0000;
-    can1_filter_st.FilterMaskIdHigh = 0x0000;
-    can1_filter_st.FilterMaskIdLow = 0x0000;
-    can1_filter_st.FilterFIFOAssignment = CAN_RX_FIFO0;
-    can1_filter_st.FilterActivation = ENABLE;
-    can1_filter_st.FilterMode = CAN_FILTERMODE_IDMASK;
-    can1_filter_st.FilterScale = CAN_FILTERSCALE_32BIT;
-    can1_filter_st.FilterBank = 0;
-    can1_filter_st.SlaveStartFilterBank = 14;
-
-     can2_filter_st.FilterIdHigh = 0x0000;
-     can2_filter_st.FilterIdLow = 0x0000;
-     can2_filter_st.FilterMaskIdHigh = 0x0000;
-     can2_filter_st.FilterMaskIdLow = 0x0000;
-     can2_filter_st.FilterFIFOAssignment = CAN_RX_FIFO1;
-     can2_filter_st.FilterActivation = ENABLE;
-     can2_filter_st.FilterMode = CAN_FILTERMODE_IDMASK;
-     can2_filter_st.FilterScale = CAN_FILTERSCALE_32BIT;
-     can2_filter_st.FilterBank = 14;
-     can2_filter_st.SlaveStartFilterBank = 14;
-
-    if (HAL_CAN_ConfigFilter(&hcan1, &can1_filter_st) != HAL_OK)// 配置 CAN1 过滤器
-    {
-        Error_Handler();  // 处理错误
-    }
-    if (HAL_CAN_Start(&hcan1) != HAL_OK)// 启动 CAN1
-    {
-        Error_Handler();
-    }
-    if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)// 使能 CAN1 接收 FIFO0 消息中断
-    {
-        Error_Handler();
-    }
-    HAL_Delay(10);
-    if (HAL_CAN_ConfigFilter(&hcan2, &can2_filter_st) != HAL_OK)    // 配置 CAN2 过滤器
-    {
-        Error_Handler();
-    }
-    if (HAL_CAN_Start(&hcan2) != HAL_OK)// 启动 CAN2
-    {
-        Error_Handler();
-    }
-    if (HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO1_MSG_PENDING) != HAL_OK)// 使能 CAN2 接收 FIFO1 消息中断
-    {
-        Error_Handler();
-    }
 }
 
 void sendCmdShoot(int16_t frictionWheel_l, int16_t frictionWheel_r, int16_t dial) {
@@ -221,8 +166,8 @@ void sendCmdGimbal(int16_t DM4310) {
     HAL_CAN_AddTxMessage(&hcan2,&tx_header,gimbal_tx_message,&send_mail_box);
 }
 
-
-uint8_t DM4310_Enable_Array[8]  = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};		// 电机使能命令
+// DM4310使能
+uint8_t DM4310_Enable_Array[8]  = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};		  // 电机使能命令
 uint8_t DM4310_Disable_Array[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFD};       // 电机失能命令
 
 void DM4310_Enable(void) {
@@ -233,7 +178,11 @@ void DM4310_Enable(void) {
     tx_header.RTR   = CAN_RTR_DATA;
     tx_header.DLC   = 0x08;
 
-    HAL_CAN_AddTxMessage(&hcan1,&tx_header,DM4310_Enable_Array,&send_mail_box);
+    if (HAL_CAN_AddTxMessage(&hcan2,&tx_header,DM4310_Enable_Array,&send_mail_box) != HAL_OK) {
+        if (HAL_CAN_AddTxMessage(&hcan2, &tx_header, DM4310_Enable_Array, &send_mail_box) != HAL_OK) {
+            HAL_CAN_AddTxMessage(&hcan2, &tx_header, DM4310_Enable_Array, &send_mail_box);
+        }
+    }
 }
 
 void DM4310_Disable(void) {
@@ -244,10 +193,67 @@ void DM4310_Disable(void) {
     tx_header.RTR   = CAN_RTR_DATA;
     tx_header.DLC   = 0x08;
 
-    HAL_CAN_AddTxMessage(&hcan1,&tx_header,DM4310_Disable_Array,&send_mail_box);
+    if (HAL_CAN_AddTxMessage(&hcan2,&tx_header,DM4310_Disable_Array,&send_mail_box) != HAL_OK) {
+        if (HAL_CAN_AddTxMessage(&hcan2, &tx_header, DM4310_Disable_Array, &send_mail_box) != HAL_OK) {
+            HAL_CAN_AddTxMessage(&hcan2, &tx_header, DM4310_Disable_Array, &send_mail_box);
+        }
+    }
 }
 
+void CAN_Filter_Init(void)
+{
+    CAN_FilterTypeDef can1_filter_st;
+    CAN_FilterTypeDef can2_filter_st;
 
+
+    can1_filter_st.FilterIdHigh = 0x0000;
+    can1_filter_st.FilterIdLow = 0x0000;
+    can1_filter_st.FilterMaskIdHigh = 0x0000;
+    can1_filter_st.FilterMaskIdLow = 0x0000;
+    can1_filter_st.FilterFIFOAssignment = CAN_RX_FIFO0;
+    can1_filter_st.FilterActivation = ENABLE;
+    can1_filter_st.FilterMode = CAN_FILTERMODE_IDMASK;
+    can1_filter_st.FilterScale = CAN_FILTERSCALE_32BIT;
+    can1_filter_st.FilterBank = 0;
+    can1_filter_st.SlaveStartFilterBank = 14;
+
+    can2_filter_st.FilterIdHigh = 0x0000;
+    can2_filter_st.FilterIdLow = 0x0000;
+    can2_filter_st.FilterMaskIdHigh = 0x0000;
+    can2_filter_st.FilterMaskIdLow = 0x0000;
+    can2_filter_st.FilterFIFOAssignment = CAN_RX_FIFO1;
+    can2_filter_st.FilterActivation = ENABLE;
+    can2_filter_st.FilterMode = CAN_FILTERMODE_IDMASK;
+    can2_filter_st.FilterScale = CAN_FILTERSCALE_32BIT;
+    can2_filter_st.FilterBank = 14;
+    can2_filter_st.SlaveStartFilterBank = 14;
+
+    if (HAL_CAN_ConfigFilter(&hcan1, &can1_filter_st) != HAL_OK)// 配置 CAN1 过滤器
+    {
+        Error_Handler();  // 处理错误
+    }
+    if (HAL_CAN_Start(&hcan1) != HAL_OK)// 启动 CAN1
+    {
+        Error_Handler();
+    }
+    if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)// 使能 CAN1 接收 FIFO0 消息中断
+    {
+        Error_Handler();
+    }
+    HAL_Delay(10);
+    if (HAL_CAN_ConfigFilter(&hcan2, &can2_filter_st) != HAL_OK)    // 配置 CAN2 过滤器
+    {
+        Error_Handler();
+    }
+    if (HAL_CAN_Start(&hcan2) != HAL_OK)// 启动 CAN2
+    {
+        Error_Handler();
+    }
+    if (HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO1_MSG_PENDING) != HAL_OK)// 使能 CAN2 接收 FIFO1 消息中断
+    {
+        Error_Handler();
+    }
+}
 // //d.bus
 // RC_t RC;
 // uint8_t RC_Data[18] = {0};
