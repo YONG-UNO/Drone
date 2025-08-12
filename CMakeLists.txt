@@ -40,6 +40,11 @@ add_executable(${CMAKE_PROJECT_NAME}
         User/connectivity/iic/bsp_iic.h
         User/device/ist8310/ist8310.c
         User/device/ist8310/ist8310.h
+        User/Math/conversion.c
+        User/Math/conversion.h
+        User/task/1.c
+        User/task/1.h
+
 )
 
 # Add STM32CubeMX generated sources
