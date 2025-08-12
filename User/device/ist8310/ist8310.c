@@ -59,16 +59,16 @@ void ist8310ReadData(float magneticField[3], float *temperature) {              
                                                                       // (0x03 -> 0x08 | DATAXL -> DATAZH) (x轴第八位 -> z轴高八位)
     ist8310ReadRegisterMultiple(0x1C, rx_buffer_temp, 2);
 
-    temporary_ist8310_data = ((uint16_t)rx_buffer_magn[1] << 8 | (uint16_t)rx_buffer_magn[0]);  // X轴:[-1600uT,1600uT]
+    temporary_ist8310_data = ((int16_t)rx_buffer_magn[1] << 8 | (int16_t)rx_buffer_magn[0]);  // X轴:[-1600uT,1600uT]
     magneticField[0] = (float)temporary_ist8310_data * MAG_SEN;
 
-    temporary_ist8310_data = (uint16_t)rx_buffer_magn[3] << 8 | (uint16_t)rx_buffer_magn[2];  // Y轴:[-1600uT,1600uT]
+    temporary_ist8310_data = (int16_t)rx_buffer_magn[3] << 8 | (int16_t)rx_buffer_magn[2];  // Y轴:[-1600uT,1600uT]
     magneticField[1] = (float)temporary_ist8310_data * MAG_SEN;
 
-    temporary_ist8310_data = (uint16_t)rx_buffer_magn[5] << 8 | (uint16_t)rx_buffer_magn[4];  // Z轴:[-2500uT,2500uT]
+    temporary_ist8310_data = (int16_t)rx_buffer_magn[5] << 8 | (int16_t)rx_buffer_magn[4];  // Z轴:[-2500uT,2500uT]
     magneticField[2] = (float)temporary_ist8310_data * MAG_SEN;
 
-    temporary_ist8310_data = (int16_t)rx_buffer_temp[1] << 8 | rx_buffer_temp[0];
+    temporary_ist8310_data = (int16_t)rx_buffer_temp[1] << 8 | (int16_t)rx_buffer_temp[0];
     *temperature = (float)temporary_ist8310_data / 65535.0 * (85 + 40) - 40;      //85℃是最大温度,-40℃是最小温度
 }
 
