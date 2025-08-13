@@ -31,27 +31,29 @@ typedef struct {
     int16_t  torque;
     int16_t  given_current;
     int8_t   temperature;
-
-
-    // // DM
-    // uint16_t ERR;       //
-    // uint16_t POS;
-    // uint16_t VEL;
-    // uint16_t T;
-    // uint16_t T_MOS;
-    // uint16_t T_Rotor;
 } motor_measure_t;
 
+typedef struct {
+    int p_int;
+    int v_int;
+    int t_int;
+    float position;
+    float velocity;
+    float torque;
+} motor_measure_DM4310_t;
 
-extern motor_measure_t motor_measure[5];
-extern HAL_StatusTypeDef i;
+
+extern motor_measure_t           motor_measure[4];
+extern motor_measure_DM4310_t    motor_measure_DM4310[1];
 
 void CAN_Filter_Init(void);
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan);
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan);
 void get_motor_measure(motor_measure_t *motor_measure,uint32_t StdId, uint8_t rx_data[]);
+void get_motor_measure_DM4310(motor_measure_DM4310_t *motor_measure_DM4310,uint32_t StdId, uint8_t rx_data[]);
 
 void sendCmdShoot(int16_t frictionWheel_l, int16_t frictionWheel_r, int16_t dial);
+void sendCmdGimbal_DM4310(float DM4310);
 
 void DM4310_Enable(void);
 void DM4310_Disable(void);

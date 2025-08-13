@@ -59,8 +59,8 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
             break;
 
         case CAN_4310_M5_ID:
-            n = rx_header.StdId - 13;                         // 4310: 0x11 - 13 = 4
-            get_motor_measure(&motor_measure[n], rx_header.StdId, rx_data);
+            n = rx_header.StdId - 17;                         // 4310: 0x11 - 17 = 0
+            get_motor_measure_DM4310(&motor_measure_DM4310[n], rx_header.StdId, rx_data);
             break;
 
         default:
@@ -99,20 +99,6 @@ void get_motor_measure(motor_measure_t *motor_measure,uint32_t StdId, uint8_t rx
             motor_measure->torque        =  0;
             break;
 
-        case CAN_4310_M5_ID: {
-            int16_t position             = (int16_t)((rx_data[1] << 8) | (int16_t)rx_data[2]);
-            int speed_rpm                = ((uint16_t)rx_data[3] << 4 | ((uint16_t)rx_data[4] & 0x0F)) & 0xFFF;
-            int torque                   = (((uint16_t)rx_data[4] << 8) & 0x780) | (uint16_t)rx_data[5] & 0xFFF;
-            int temperature              = rx_data[7];
-            motor_measure->ecd           = encoder_convert(position);
-            motor_measure->last_ecd      = motor_measure->ecd;
-            motor_measure->speed_rpm     = uint_to_float(speed_rpm,-VMAX,-VMAX,12);  // VMAX:45
-            motor_measure->torque        = uint_to_float(torque,-TMAX,TMAX,12);      // TMAX:18
-            motor_measure->temperature   = temperature;
-            motor_measure->given_current = 0;
-            break;
-        }
-
         default:
             motor_measure->ecd = 0;
             motor_measure->given_current = 0;
@@ -121,7 +107,15 @@ void get_motor_measure(motor_measure_t *motor_measure,uint32_t StdId, uint8_t rx
             motor_measure->temperature= 0;
             motor_measure->torque = 0;
     }
+}
 
+void get_motor_measure_DM4310(motor_measure_DM4310_t *motor_measure_DM4310,uint32_t StdId, uint8_t rx_data[]) {
+    motor_measure_DM4310->p_int = (rx_data[1] << 8) | rx_data[2];
+    motor_measure_DM4310->v_int = (rx_data[3] << 4) | (rx_data[4] >> 4);
+    motor_measure_DM4310->t_int = ((rx_data[4] & 0xF) << 8) | rx_data[5];
+    motor_measure_DM4310->position = convert(motor_measure_DM4310->p_int);
+    motor_measure_DM4310->velocity = uint_to_float(motor_measure_DM4310 -> v_int, -VMAX, VMAX, 12);
+    motor_measure_DM4310->torque   = uint_to_float(motor_measure_DM4310 -> t_int, -TMAX, TMAX, 12);
 }
 
 void sendCmdShoot(int16_t frictionWheel_l, int16_t frictionWheel_r, int16_t dial) {
@@ -145,7 +139,7 @@ void sendCmdShoot(int16_t frictionWheel_l, int16_t frictionWheel_r, int16_t dial
     HAL_CAN_AddTxMessage(&hcan1,&tx_header,shoot_tx_message,&send_mail_box);
 }
 
-void sendCmdGimbal(int16_t DM4310) {
+void sendCmdGimbal_DM4310(float torq) {
     uint32_t send_mail_box;
     CAN_TxHeaderTypeDef tx_header;
     tx_header.StdId = 0x01;
@@ -153,15 +147,23 @@ void sendCmdGimbal(int16_t DM4310) {
     tx_header.RTR   = CAN_RTR_DATA;
     tx_header.DLC   = 0x08;
 
+    float    pos = 0,vel = 0,kp = 0,kd = 0;
+    uint16_t pos_tmp,vel_tmp,kp_tmp,kd_tmp,tor_tmp;
+    pos_tmp = float_to_uint(pos, -PMAX, PMAX, 16);
+    vel_tmp = float_to_uint(vel, -VMAX, VMAX, 12);
+    kp_tmp = float_to_uint(kp, 0,0,12);
+    kd_tmp = float_to_uint(kd, 0, 0, 12);
+    tor_tmp = float_to_uint(torq, -TMAX, TMAX, 12);
+
     uint8_t gimbal_tx_message[8] = {0};
-    gimbal_tx_message[0] = 0;
-    gimbal_tx_message[1] = 0;
-    gimbal_tx_message[2] = 0;
-    gimbal_tx_message[3] = 0;
-    gimbal_tx_message[4] = 0;
-    gimbal_tx_message[5] = 0;
-    gimbal_tx_message[6] = ((DM4310 >> 8) & 0xF8) << 3;
-    gimbal_tx_message[7] = DM4310;
+    gimbal_tx_message[0] = (pos_tmp >> 8);
+    gimbal_tx_message[1] = pos_tmp;
+    gimbal_tx_message[2] = (vel_tmp >> 4);
+    gimbal_tx_message[3] = ((vel_tmp&0xF)<<4)|(kp_tmp>>8);
+    gimbal_tx_message[4] = kp_tmp;
+    gimbal_tx_message[5] = (kd_tmp >> 4);
+    gimbal_tx_message[6] = ((kd_tmp&0xF)<<4)|(tor_tmp>>8);
+    gimbal_tx_message[7] = tor_tmp;
 
     HAL_CAN_AddTxMessage(&hcan2,&tx_header,gimbal_tx_message,&send_mail_box);
 }
