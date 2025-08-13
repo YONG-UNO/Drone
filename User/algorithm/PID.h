@@ -34,7 +34,6 @@ float pidSpeed(pid_t *pid, float target, float feedback);
 float pidCascade(pid_t *angle_pid, pid_t *speed_pid,
                  float angle_target,   float angle_feedback,
                  float speed_feedback, float speed_max);
-float setOutLimit(float input, float output_max, float output_min);
 void pidOverZero_8192(const float *target, float *feedback);
 
 #endif //PID_H

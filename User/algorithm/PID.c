@@ -5,6 +5,8 @@
 
 #include "PID.h"
 
+#include "User/Math/limit.h"
+
 void pidInit(pid_t *pid, float const kp, float const ki, float const kd,
              float const max_out, float const max_output_i) {
     pid->kp = kp;
@@ -58,7 +60,7 @@ float pidAngle(pid_t *pid, float const target, float const feedback) {
     // 过零保护:先修正feedback,再计算error[0],逻辑顺序
     pidOverZero_8192(&pid->target, &pid->feedback);
 
-    pid->error[0] = target - feedback;
+    pid->error[0] = pid->target - pid->feedback;
 
 
     pid->p_term =  pid->kp * pid->error[0];                    // 比例项
@@ -137,19 +139,6 @@ float pidCascade(pid_t *angle_pid, pid_t *speed_pid,
     float current = pidSpeed(speed_pid, speed_target, speed_feedback);
 
     return current;
-}
-
-/**
- *
- * @param input
- * @param output_max
- * @param output_min
- * @return
- */
-float setOutLimit(float const input,float const output_max,float const output_min) {
-    if (input > output_max)           return output_max;
-    else if (input < output_min)      return output_min;
-    else                              return input;
 }
 
 /**
