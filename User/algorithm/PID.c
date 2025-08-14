@@ -5,6 +5,8 @@
 
 #include "PID.h"
 
+#include <stddef.h>
+
 #include "User/Math/limit.h"
 
 void pidInit(pid_t *pid, float const kp, float const ki, float const kd,
@@ -28,15 +30,30 @@ void pidInit(pid_t *pid, float const kp, float const ki, float const kd,
 }
 
 void pidReset(pid_t *pid) {
-    // 清零所有状态变量
-    pid->target   = 0.0f;
-    pid->feedback = 0.0f;
-    pid->output   = 0.0f;
+    if (pid == NULL) return;   // 空指针保护,避免崩溃
+
+    // 重置PID输出及分项
+    pid->output  = 0.0f;
     pid->p_term  = 0.0f;
-    pid->i_term  = 0.0f;
+    pid->i_term  = 0.0f;       // 关键: 积分项必须清零, 否则会残留输出
     pid->d_term  = 0.0f;
 
-    for (int i = 0; i < 3; i++) pid->error[i] = 0.0f;
+    // 重置误差历史 (避免微分项残留)
+    pid->error[0] = 0.0f;
+    pid->error[1] = 0.0f;
+    pid->error[2] = 0.0f;
+}
+
+/**
+ * @brief 重置串级PID（角度环+速度环）的所有状态，确保输出完全清零
+ * @param angle_pid 角度环PID结构体指针
+ * @param speed_pid 速度环PID结构体指针
+ * @use   pidCasecadeRset(&angle_pid, &speed_pid);
+ */
+void pidCascadeReset(pid_t *angle_pid, pid_t *speed_pid) {
+    // 分别重置两个环(内部已经包含空指针保护)
+    pidReset(angle_pid);
+    pidReset(speed_pid);
 }
 
 /**
@@ -128,12 +145,9 @@ float pidSpeed(pid_t *pid, const float target, const float feedback) {
  */
 float pidCascade(pid_t *angle_pid, pid_t *speed_pid,
                  const float angle_target, float const angle_feedback,
-                 float const speed_feedback, float const speed_max) {
+                 float const speed_feedback) {
     // pidAngle 计算得到 pidSpeed 的target
     float speed_target = pidAngle(angle_pid, angle_target, angle_feedback);
-
-    // 限制目标速度
-    speed_target = setOutLimit(speed_target, speed_max, -speed_max);
 
     // pidAngle 计算得到最后电流值(扭矩)
     float current = pidSpeed(speed_pid, speed_target, speed_feedback);
