@@ -7,12 +7,14 @@
 #include "dbus.h"
 #include "PID.h"
 
-extern float i;
+extern float input_DM4310;
 
 extern RC_t RC;
-extern pid_t angle_pid_DM4310;
 extern pid_t speed_pid_DM4310;
+extern pid_t angle_pid_DM4310;
+extern pid_t speed_pid_CAN_6020_M4_ID;
+extern pid_t angle_pid_CAN_6020_M4_ID;
 
-void gimbalControl_DM4310(void const * argument);
+void gimbalControl(void const * argument);
 
 #endif //GIMBAL_CONTROL_H
