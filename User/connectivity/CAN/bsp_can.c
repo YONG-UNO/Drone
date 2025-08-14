@@ -92,7 +92,7 @@ void get_motor_measure(motor_measure_t *motor_measure,uint32_t StdId, uint8_t rx
 
         case CAN_6020_M4_ID:
             motor_measure->last_ecd      =  motor_measure->ecd;
-            motor_measure->ecd           =  ((int16_t)rx_data[0] << 8   | (int16_t)rx_data[1]);
+            motor_measure->ecd           =  ((uint16_t)rx_data[0] << 8   | (uint16_t)rx_data[1]);
             motor_measure->speed_rpm     =  ((int16_t) rx_data[2] << 8  | (int16_t)rx_data[3]);
             motor_measure->given_current =  ((int16_t) rx_data[4] << 8  | (int16_t)rx_data[5]);
             motor_measure->temperature   =  rx_data[6];
@@ -127,16 +127,44 @@ void sendCmdShoot(int16_t frictionWheel_l, int16_t frictionWheel_r, int16_t dial
     tx_header.DLC   = 0x08;
 
     uint8_t shoot_tx_message[8] = {0};
-    shoot_tx_message[0] = frictionWheel_l >> 8;
-    shoot_tx_message[1] = frictionWheel_l;
-    shoot_tx_message[2] = frictionWheel_r >> 8;
-    shoot_tx_message[3] = frictionWheel_r;
-    shoot_tx_message[4] = dial >> 8;
-    shoot_tx_message[5] = dial;
+    shoot_tx_message[0] = (uint8_t)(frictionWheel_l >> 8);
+    shoot_tx_message[1] = (uint8_t)frictionWheel_l;
+    shoot_tx_message[2] = (uint8_t)(frictionWheel_r >> 8);
+    shoot_tx_message[3] = (uint8_t)frictionWheel_r;
+    shoot_tx_message[4] = (uint8_t)(dial >> 8);
+    shoot_tx_message[5] = (uint8_t)dial;
     shoot_tx_message[6] = 0;
     shoot_tx_message[7] = 0;
 
     HAL_CAN_AddTxMessage(&hcan1,&tx_header,shoot_tx_message,&send_mail_box);
+}
+
+void sendCmdGimbal(int16_t yaw) {
+    uint32_t send_mail_box0;
+    uint32_t send_mail_box1;
+    uint32_t send_mail_box2;
+
+    CAN_TxHeaderTypeDef tx_header;
+    tx_header.StdId = 0X1FF;
+    tx_header.IDE   = CAN_ID_STD;
+    tx_header.RTR   = CAN_RTR_DATA;
+    tx_header.DLC   = 0x08;
+
+    uint8_t yaw_tx_message[8] = {0};
+    yaw_tx_message[0] = (uint8_t)(yaw >> 8);
+    yaw_tx_message[1] = (uint8_t)yaw;
+    yaw_tx_message[2] = 0;
+    yaw_tx_message[3] = 0;
+    yaw_tx_message[4] = 0;
+    yaw_tx_message[5] = 0;
+    yaw_tx_message[6] = 0;
+    yaw_tx_message[7] = 0;
+
+    if (HAL_CAN_AddTxMessage(&hcan2,&tx_header,yaw_tx_message,&send_mail_box0) != HAL_OK) {
+        if (HAL_CAN_AddTxMessage(&hcan2,&tx_header,yaw_tx_message,&send_mail_box1) != HAL_OK) {
+            HAL_CAN_AddTxMessage(&hcan2,&tx_header,yaw_tx_message,&send_mail_box2);
+        }
+    };
 }
 
 void sendCmdGimbal_DM4310(float torq) {

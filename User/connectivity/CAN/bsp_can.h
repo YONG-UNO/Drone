@@ -15,7 +15,7 @@
 # define  CAN_2006_M3_ID    0x203
 
 // CAN2:
-# define  CAN_6020_M4_ID    0x204    //204+1
+# define  CAN_6020_M4_ID    0x205    //204+1
 # define  CAN_4310_M5_ID    0x11
 
 // dm4310配置
@@ -25,12 +25,12 @@
 
 
 typedef struct {
-    int16_t  ecd;        //6020:机械角[0-8191]
+    uint16_t  ecd;        //6020:机械角[0-8191]
     uint16_t  last_ecd;
     int16_t  speed_rpm;
     int16_t  torque;
     int16_t  given_current;
-    int8_t   temperature;
+    uint8_t   temperature;
 } motor_measure_t;
 
 typedef struct {
@@ -53,7 +53,8 @@ void get_motor_measure(motor_measure_t *motor_measure,uint32_t StdId, uint8_t rx
 void get_motor_measure_DM4310(motor_measure_DM4310_t *motor_measure_DM4310,uint32_t StdId, uint8_t rx_data[]);
 
 void sendCmdShoot(int16_t frictionWheel_l, int16_t frictionWheel_r, int16_t dial);
-void sendCmdGimbal_DM4310(float DM4310);
+void sendCmdGimbal(int16_t yaw);
+void sendCmdGimbal_DM4310(float torq);
 
 void DM4310_Enable(void);
 void DM4310_Disable(void);
