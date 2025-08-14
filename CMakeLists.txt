@@ -42,10 +42,12 @@ add_executable(${CMAKE_PROJECT_NAME}
         User/device/ist8310/ist8310.h
         User/Math/conversion.c
         User/Math/conversion.h
-        User/task/gimbal/gimbal_control_DM4310.c
-        User/task/gimbal/gimbal_control_DM4310.h
+        User/task/gimbal/gimbal_control.c
+        User/task/gimbal/gimbal_control.h
         User/Math/limit.c
         User/Math/limit.h
+        User/task/shoot/shoot_control.c
+        User/task/shoot/shoot_control.h
 
 )
 
