@@ -39,8 +39,6 @@ git rm --cached main.exe   # 移除文件跟踪
 ```
 
 ## clion使用
-### 显示变量波形
-#### 1.先添加到wathc 2.右键选择Graph 3.在view菜单里面选择Timeline 4.只选择Data 5.Fit Width | Height
 
 ### 使用shift + ctrl + R:进行替换和查找
 ### clion自动生成注释
@@ -54,7 +52,8 @@ git rm --cached main.exe   # 移除文件跟踪
 ##### 解决方法: 使用markdown格式:[链接名称] (链接)   (经测试无法通过(尴尬.jpg))
 
 ## Ozone使用
-### 没写
+### 显示变量波形
+#### 1.先添加到wathc 2.右键选择Graph 3.在view菜单里面选择Timeline 4.只选择Data 5.Fit Width | Height
 
 ## TODO使用
 ### 如何查看:
