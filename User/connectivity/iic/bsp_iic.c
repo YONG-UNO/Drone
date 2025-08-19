@@ -182,6 +182,7 @@
 //         }
 //     }
 // }
+uint8_t OLED_GRAM[128][8];
 
 void oled_write_byte_dma(uint8_t data, uint8_t cmd) {
     // 静态局部变量,若不使用static,函数结束后,数组
@@ -288,19 +289,19 @@ void OLED_operate_gram(pen_typedef operate) {
     // 计算GRAM总大小(128列 * 8页 = 1024字节)
     const uint16_t GRAM_SIZE = 1024;
     // 将二维数组转为一维指针,简化访问
-    uint8_t *gram_ptr = (uint8_t *)GRAM_SIZE;
+    uint8_t *gram_ptr = (uint8_t *)OLED_GRAM;
 
     // 根据操作类型选择处理逻辑
     switch (operate) {
-        case operate.PEN_WRITE:
+        case PEN_WRITE:
             // 用memset快速填充0xFF,效率高于循环赋值
             memset(gram_ptr, 0xFF, GRAM_SIZE);
             break;
-        case operate.PEN_CLEAR:
+        case PEN_CLEAR:
             // 用memset快速填充0x00
             memset(gram_ptr, 0x00, GRAM_SIZE);
             break;
-        case operate.PEN_INVERSION:
+        case PEN_INVERSION:
             // 对每个字节按位取反,用循环操作
             for (uint16_t i = 0; i < GRAM_SIZE; i++) {
                 // 异或操作比减法更高效(x = 0xFF - x 等价于 x = x ^ 0xFF,^:当两者相同时取0,不同时取1)
@@ -310,5 +311,84 @@ void OLED_operate_gram(pen_typedef operate) {
         default:
             // 处理无效参数(可选: 添加日志或返回值)
             break;
+    }
+}
+
+/**
+ * @brief 将"绘图起点"定位到指定坐标
+ *          x:列地址(0~127),对应屏幕水平方向的像素位置
+ *          y:页地址(0~7), 对应屏幕垂直方向的页位置(128*64中,每8行为1页,共8页)
+ * @param x
+ * @param y
+ */
+void OLED_set_position(uint8_t x, uint8_t y) {
+    // 1.设置页地址(0xb0(1011 0000b) + y) page31:page addressing mode
+    oled_write_byte_dma((0xb0 + y), OLED_CMD);
+
+    // 2.设置列地址高四位 page30:Set Higher Column Start Address
+    //   (00010000 | COLUMN_HIGH) page34:Set the upper start column...10h~1Fh
+    //   (x & 0xF0(1111 0000) >> 4) | 10h(0001 0000b)
+    oled_write_byte_dma((((x & 0xF0) >> 4) | 0x10), OLED_CMD);
+
+    // 3.设置列地址第四位 page30:Set Lower Column Start Address
+    oled_write_byte_dma(x & 0x0F, OLED_CMD);
+}
+
+/**
+  * @brief          操作屏幕单个像素点(128*64分辨率)
+  * @param[in]      x: x轴坐标 [0, X_WIDTH-1]
+  * @param[in]      y: y轴坐标 [0, Y_WIDTH-1]
+  * @param[in]      operate: 操作类型
+  *                   PEN_CLEAR: 像素置0(灭)
+  *                   PEN_WRITE: 像素置1(亮)
+  *                   PEN_INVERSION: 像素状态反转
+  * @retval         none
+  */
+void OLED_draw_point(int8_t x, int8_t y, pen_typedef operate) {
+    // 1.参数范围检查
+    if ((x > 127) || (y > 63) || (x < 0) || (y < 0)) {
+        return;
+    }
+
+    // 2.计算页地址和位偏移
+    //   计算像素所在页,如y=10,10/8 = 1 -> 第一页
+    uint8_t page = y / 8;
+    //   计算像素所在页的行,如y=10,10%8 = 2 -> 第三行
+    uint8_t row  = y % 8;
+
+    switch (operate) {
+        case PEN_WRITE:
+            // |=(或运算): 目标位被强制设为1,其他位保存不变
+            // 如:row = 2, 1 << 2 = 0b 0000 0100
+            // 如:原字节:0b 1000 0001 运算后:0b 1000 0101(仅bit2强制设为1)
+            OLED_GRAM[x][page]  |= 1 << row;
+            break;
+        case PEN_CLEAR:
+            // &=(与运算): 目标位被强制设为0,其他位保持不变
+            // 如:row = 2, 1 << 2 = 0b 0000 0100,取反后:0b 1111 1011
+            // 如:原字节:0b 1000 0101 运算后:0b 1000 0001(仅bit2强制设为0)
+            OLED_GRAM[x][page]  &= ~(1 << row);
+            break;
+        case PEN_INVERSION:
+            // ^=(异或运算): 目标位与1异或会翻转(0->1,1->0),其他位与0异或保持不变
+            // 如:row = 2, 1 << 2 = 0b 0000 0100
+            // 如:原字节:0b 1000 0101 运算后:0b 1000 0001(仅bit2被强制翻转)
+            OLED_GRAM[x][page]  ^= 1 << row;
+            break;
+        default:
+            break;
+    }
+}
+
+void OLED_refresh_gram(void) {
+    uint8_t page, column;
+    for (page = 0; page < 8; page++) {
+        // 1. 设置当前页地址
+        OLED_set_position(0, page);  // 从第0列开始刷新当前页
+        // 2. 发送该页的128列数据
+        for (column = 0; column < 128; column++) {
+            // 发送数据：cmd=0表示数据（根据OLED硬件定义，可能是0x40）
+            oled_write_byte_dma(OLED_GRAM[column][page], 0x40);  // 0x40为数据命令标志
+        }
     }
 }
