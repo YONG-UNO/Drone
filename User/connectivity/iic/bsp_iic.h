@@ -7,19 +7,6 @@
 
 #include <stdint.h>
 
-#define OLED_I2C_ADDRESS 0x78   // oled设备地址
-
-#define OLED_CMD   0x00   // 代表写入的字节是指令
-#define OLED_DATA  0x40   // 代表写入的字节是数据
-
-extern  uint8_t OLED_GRAM[128][8];
-
-typedef enum  {
-    PEN_WRITE     = 0x00,   // 填充0xFF(全屏点亮)
-    PEN_CLEAR     = 0x01,   // 填充0x00(清屏)
-    PEN_INVERSION = 0x02    // 按位取反(反色显示)
-} pen_typedef;
-
 // #define IST8310_IIC_ADDRESS 0x0E
 
 // void ist8310GpioInit(void);   // 初始化ist8310的gpio(cubeMX已经配好)
@@ -36,11 +23,5 @@ typedef enum  {
 //
 // void HAL_Delay_us(uint16_t us);  // 使用轮询方式实现us延迟
 
-void OLED_init(void);
-void OLED_display_ON(void);
-void OLED_display_OFF(void);
-void OLED_operate_gram(pen_typedef operate);
-void OLED_set_position(uint8_t x, uint8_t y);
-void OLED_draw_point(int8_t x, int8_t y, pen_typedef operate);
-void OLED_refresh_gram(void);
+
 #endif //BSP_IIC_H
