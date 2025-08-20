@@ -24,7 +24,7 @@ void OLED_display_ON(void);
 void OLED_display_OFF(void);
 void OLED_operate_gram(pen_typedef operate);
 void OLED_set_position(uint8_t x, uint8_t y);
-void OLED_draw_point(int8_t x, int8_t y, pen_typedef operate);
+void OLED_draw_point(uint8_t x, uint8_t y, pen_typedef operate);
 void OLED_refresh_gram(void);
 void OLED_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, pen_typedef pen);
 

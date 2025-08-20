@@ -4,8 +4,10 @@
 
 #include "ssd1306.h"
 
+#include <math.h>
 #include <stdint.h>
 #include <string.h>
+#include <sys/types.h>
 
 #include "i2c.h"
 
@@ -172,7 +174,7 @@ void OLED_set_position(uint8_t x, uint8_t y) {
   *                   PEN_INVERSION: 像素状态反转
   * @retval         none
   */
-void OLED_draw_point(int8_t x, int8_t y, pen_typedef operate) {
+void OLED_draw_point(uint8_t x, uint8_t y, pen_typedef operate) {
     // 1.参数范围检查
     if ((x > 127) || (y > 63) || (x < 0) || (y < 0)) {
         return;
@@ -208,6 +210,45 @@ void OLED_draw_point(int8_t x, int8_t y, pen_typedef operate) {
     }
 }
 
+/**
+ * @brief 画一条直线,从起点到终点
+ * @param x1 起点横坐标
+ * @param y1 起点纵坐标
+ * @param x2 终点横坐标
+ * @param y2 终点纵坐标
+ * @param operate PEN_WRITE,PEN_CLEAR,PEN_INVERSION
+ */
+void OLED_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, pen_typedef operate) {
+    uint8_t column = 0, row = 0;
+    uint8_t x_start = 0, x_end = 0, y_start = 0, y_end = 0;
+
+    if (y1 == y2) {
+        (x1 <= x2) ? (x_start = x1) : (x_start = x2);
+        (x1 <= x2) ? (x_end   = x2) : (x_end   = x1);
+
+        for (column = x_start; column <= x_end; column++) {
+            OLED_draw_point(column, y1, operate);
+        }
+    }else if (x1 == x2) {
+        (y1 <= y2) ? (y_start = y1) : (y_start = y2);
+        (y1 <= y2) ? (y_end   = y2) : (y_end   = y1);
+
+        for (row = y_start; row <= y_end; row++) {
+            OLED_draw_point(x1, row, operate);
+        }
+    }else {
+        float k = (float)(y2 - y1) / (float)(x2 - x1);
+        float b = (float)y1 - k * (float)x1;
+
+        (x1 <= x2) ? (x_start = x1) : (x_start = x2);
+        (x1 <= x2) ? (x_end   = x2) : (x_end   = x1);
+
+        for (column = x_start; column <= x_end; column++) {
+            OLED_draw_point(column, (uint8_t)roundf(k * column + b), operate);
+        }
+    }
+}
+
 void OLED_refresh_gram(void) {
     uint8_t page, column;
     for (page = 0; page < 8; page++) {
@@ -217,67 +258,6 @@ void OLED_refresh_gram(void) {
         for (column = 0; column < 128; column++) {
             // 发送数据：cmd=0表示数据（根据OLED硬件定义，可能是0x40）
             oled_write_byte_dma(OLED_GRAM[column][page], 0x40);  // 0x40为数据命令标志
-        }
-    }
-}
-
-
-/**
-  * @brief          draw a line from (x1, y1) to (x2, y2)
-  * @param[in]      x1: the start point of line
-  * @param[in]      y1: the start point of line
-  * @param[in]      x2: the end point of line
-  * @param[in]      y2: the end point of line
-  * @param[in]      pen: type of operation,PEN_CLEAR,PEN_WRITE,PEN_INVERSION.
-  * @retval         none
-  */
-/**
-  * @brief          画一条直线，从(x1,y1)到(x2,y2)
-  * @param[in]      x1: 起点
-  * @param[in]      y1: 起点
-  * @param[in]      x2: 终点
-  * @param[in]      y2: 终点
-  * @param[in]      pen: 操作类型,PEN_CLEAR,PEN_WRITE,PEN_INVERSION.
-  * @retval         none
-  */
-
-void OLED_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, pen_typedef pen)
-{
-    uint8_t col = 0, row = 0;
-    uint8_t x_st = 0, x_ed = 0, y_st = 0, y_ed = 0;
-    float k = 0.0f, b = 0.0f;
-
-    if (y1 == y2)
-    {
-        (x1 <= x2) ? (x_st = x1):(x_st = x2);
-        (x1 <= x2) ? (x_ed = x2):(x_ed = x1);
-
-        for (col = x_st; col <= x_ed; col++)
-        {
-            OLED_draw_point(col, y1, pen);
-        }
-    }
-    else if (x1 == x2)
-    {
-        (y1 <= y2) ? (y_st = y1):(y_st = y2);
-        (y1 <= y2) ? (y_ed = y2):(y_ed = y1);
-
-        for (row = y_st; row <= y_ed; row++)
-        {
-            OLED_draw_point(x1, row, pen);
-        }
-    }
-    else
-    {
-        k = ((float)(y2 - y1)) / (x2 - x1);
-        b = (float)y1 - k * x1;
-
-        (x1 <= x2) ? (x_st = x1):(x_st = x2);
-        (x1 <= x2) ? (x_ed = x2):(x_ed = x2);
-
-        for (col = x_st; col <= x_ed; col++)
-        {
-            OLED_draw_point(col, (uint8_t)(col * k + b), pen);
         }
     }
 }
