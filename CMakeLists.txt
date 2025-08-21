@@ -48,6 +48,14 @@ add_executable(${CMAKE_PROJECT_NAME}
         User/Math/limit.h
         User/task/shoot/shoot_control.c
         User/task/shoot/shoot_control.h
+        User/task/autoAiming/autoAiming.c
+        User/task/autoAiming/autoAiming.h
+        User/connectivity/VPC/vpc.c
+        User/connectivity/VPC/vpc.h
+        User/task/display/display.c
+        User/task/display/display.h
+        User/device/ssd1306/ssd1306.c
+        User/device/ssd1306/ssd1306.h
 
 )
 
