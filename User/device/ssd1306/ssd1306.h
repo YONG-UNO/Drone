@@ -25,7 +25,9 @@ void OLED_display_OFF(void);
 void OLED_operate_gram(pen_typedef operate);
 void OLED_set_position(uint8_t x, uint8_t y);
 void OLED_draw_point(uint8_t x, uint8_t y, pen_typedef operate);
-void OLED_refresh_gram(void);
 void OLED_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, pen_typedef pen);
+void OLED_draw_char(uint8_t row, uint8_t column, uint8_t chr);
+void OLED_draw_string(uint8_t row, uint8_t column, char *string);
+void OLED_refresh_gram(void);
 
 #endif //SSD1306_H

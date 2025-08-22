@@ -10,6 +10,7 @@
 #include <sys/types.h>
 
 #include "i2c.h"
+#include "ascii_1208.h"
 
 uint8_t OLED_GRAM[128][8];
 
@@ -176,7 +177,7 @@ void OLED_set_position(uint8_t x, uint8_t y) {
   */
 void OLED_draw_point(uint8_t x, uint8_t y, pen_typedef operate) {
     // 1.参数范围检查
-    if ((x > 127) || (y > 63) || (x < 0) || (y < 0)) {
+    if ((x > 127) || (y > 63)) {
         return;
     }
 
@@ -248,6 +249,41 @@ void OLED_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, pen_typedef 
         }
     }
 }
+
+/**
+ * @brief 在OLED上显示字符
+ * @param row [0~3] 64/12 = 5
+ * @param column [0~15] 128/8 = 16
+ * @param chr 'A'
+ */
+void OLED_draw_char(uint8_t row, uint8_t column, uint8_t chr) {
+    uint8_t start_x = column * 8;
+    uint8_t start_y = row    * 12;
+
+    chr = chr - ' ';                    // 计算字符在字库中的索引(空格为第一个可显示字符)
+
+    // 外层循环
+    for (uint8_t y = 0; y < 12; y++) {
+        // 内层循环: 遍历当前行的8个像素
+        for (uint8_t x = 0; x < 8; x++) {
+            // 获取当前像素点status(1:亮, 0:灭)
+            uint8_t status = ascii_1208[chr][y][x];
+
+            // 在OLED上绘制该点(实际坐标 = 起始坐标 + 偏移)
+            if (status)
+                OLED_draw_point(start_x + x, start_y + y, PEN_WRITE);
+            else
+                OLED_draw_point(start_x + x, start_y + y, PEN_CLEAR);
+        }
+    }
+}
+
+void OLED_draw_string(uint8_t row, uint8_t column, char *string) {
+    for (uint8_t i = 0; string[i] != '\0'; i++) {
+        OLED_draw_char(row, column + i, string[i]);
+    }
+}
+
 
 void OLED_refresh_gram(void) {
     uint8_t page, column;
