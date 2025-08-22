@@ -278,7 +278,13 @@ void OLED_draw_char(uint8_t row, uint8_t column, uint8_t chr) {
     }
 }
 
-void OLED_draw_string(uint8_t row, uint8_t column, char *string) {
+/**
+ * @brief 显示字符串
+ * @param row
+ * @param column
+ * @param string
+ */
+void OLED_draw_string(const uint8_t row, const uint8_t column, const char *string) {
     for (uint8_t i = 0; string[i] != '\0'; i++) {
         OLED_draw_char(row, column + i, string[i]);
     }
@@ -286,12 +292,11 @@ void OLED_draw_string(uint8_t row, uint8_t column, char *string) {
 
 
 void OLED_refresh_gram(void) {
-    uint8_t page, column;
-    for (page = 0; page < 8; page++) {
+    for (uint8_t page = 0; page < 8; page++) {
         // 1. 设置当前页地址
         OLED_set_position(0, page);  // 从第0列开始刷新当前页
         // 2. 发送该页的128列数据
-        for (column = 0; column < 128; column++) {
+        for (uint8_t column = 0; column < 128; column++) {
             // 发送数据：cmd=0表示数据（根据OLED硬件定义，可能是0x40）
             oled_write_byte_dma(OLED_GRAM[column][page], 0x40);  // 0x40为数据命令标志
         }
