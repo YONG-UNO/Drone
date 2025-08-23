@@ -43,13 +43,21 @@ git rm --cached main.exe   # 移除文件跟踪
 ### 使用shift + ctrl + R:进行替换和查找
 ### clion自动生成注释
 ### Doxygen 风格注释：
-#### 自动生成方式：输入 “/**” 或 “/!” 后按回车键，CLion 会根据函数的参数、返回值等信息自动生成注释框架。例如对于函数 “int add (int a, int b);”，会生成 “ @param a First integer parameter.* @param b Second integer parameter.* @return The result of adding 'a' and 'b'.” 这样的注释。
+```angular2html
+自动生成方式：输入 “/**” 或 “/!” 后按回车键，CLion 会根据函数的参数、返回值等信息自动生成注释框架。例如对于函数 “int add (int a, int b);”，
+会生成 “ @param a First integer parameter.* @param b Second integer parameter.* @return The result of adding 'a' and 'b'.” 这样的注释。
+``` 
 
 ### clionWarning类型
 #### 1.Expected command \endlink
 ##### 一般是因为注释中写了link,但是没有endlink,解决方法:在link后添加\endlink
 #### 2.无法解析符号'https'
 ##### 解决方法: 使用markdown格式:[链接名称] (链接)   (经测试无法通过(尴尬.jpg))
+
+### 快速查找文件
+```angular2html
+在文件树中直接输入想找的文件名称
+```
 
 ## Ozone使用
 ### 显示变量波形
