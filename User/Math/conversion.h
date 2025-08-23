@@ -14,6 +14,7 @@
 uint16_t encoder_convert(int16_t raw_encoder);
 float convert(float raw);
 
+void float_to_intSplit(float x, int *integer_part, int *decimal_part, uint8_t decimal_bit);
 float uint_to_float(int x_int, float x_min, float x_max, int bits);
 int float_to_uint(float x, float x_min, float x_max, int bits);
 
