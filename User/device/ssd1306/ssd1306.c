@@ -6,11 +6,14 @@
 
 #include <math.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 
 #include "i2c.h"
 #include "ascii_1208.h"
+#include "User/Math/conversion.h"
 
 uint8_t OLED_GRAM[128][8];
 
@@ -290,6 +293,31 @@ void OLED_draw_string(const uint8_t row, const uint8_t column, const char *strin
     }
 }
 
+void OLED_draw_data(const char type, const char find_bool, const float yaw, const float pitch) {
+    char display_type[11],display_yaw[32],display_pitch[16];   // 显示字符串数组缓冲区
+    sprintf(display_type,"type:  0X%2X",(unsigned char)type);    // type:0xA0 十进制为160,但char为-128~127,会变成160-256=-96,转成无符号,在用x十六进制格式化输出
+    OLED_draw_string(0,0,display_type);
+
+    if (find_bool == 0)
+        OLED_draw_string(1,0,"find:  NO");
+    else
+        OLED_draw_string(1,0,"find:  YES");
+
+    int int_part, deci_part;
+    float_to_intSplit(yaw, &int_part, &deci_part, 3);
+    if (yaw < 0)
+        sprintf(display_yaw, "yaw:   -%d.%d", abs(int_part),deci_part);
+    else
+        sprintf(display_yaw, "yaw:   %d.%d", int_part, deci_part);
+    OLED_draw_string(2,0,display_yaw);
+
+    float_to_intSplit(pitch, &int_part, &deci_part, 3);
+    if (pitch < 0)
+        sprintf(display_yaw, "pitch: -%d.%d", abs(int_part),deci_part);
+    else
+        sprintf(display_yaw, "pitch: %d.%d", int_part, deci_part);
+    OLED_draw_string(3,0,display_yaw);
+}
 
 void OLED_refresh_gram(void) {
     for (uint8_t page = 0; page < 8; page++) {
