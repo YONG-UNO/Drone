@@ -8,6 +8,8 @@
 #include "cmsis_os.h"
 
 void gimbalControl(void const * argument) {
+    (void)argument;      // 显示告知编译器此参数未使用
+
     for (;;) {
         // // 电机使能
         // if        (RC.s2 == 3)                 DM4310_Enable();

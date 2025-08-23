@@ -9,6 +9,7 @@
 #include "User/task/gimbal/gimbal_control.h"
 
 void shootControl(void const * argument) {
+    (void)argument;      // 显示告知编译器此参数未使用
 
     for (;;) {
         if (RC.s1 == 1) {

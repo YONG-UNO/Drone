@@ -31,13 +31,13 @@ void autoAiming(void const * argument) {
              * char reserve[18];          // 13-30: 预留空位(18字节)
              * char end;                  // 31: 帧尾 'e'
             */
-            send_b0_frame(
-                1.23f,
-                -0.45f,
-                0,
-                0,
-                0
-            );
+            // send_b0_frame(
+            //     1.23f,
+            //     -0.45f,
+            //     0,
+            //     0,
+            //     0
+            // );
 
             has_new_cmd = false;     // 清除标志位
         // }
