@@ -56,6 +56,7 @@ add_executable(${CMAKE_PROJECT_NAME}
         User/task/display/display.h
         User/device/ssd1306/ssd1306.c
         User/device/ssd1306/ssd1306.h
+        User/device/ssd1306/ascii_1208.h
 
 )
 
