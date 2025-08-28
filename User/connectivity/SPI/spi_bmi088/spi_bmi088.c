@@ -31,7 +31,8 @@ void BMI088_GYRO_CS_H(void) {
     HAL_GPIO_WritePin(CS1_GYRO_GPIO_Port, CS1_GYRO_Pin, GPIO_PIN_SET);
 }
 
-uint8_t BMI088_Read_Write_Data(uint8_t txData) {
+uint8_t BMI088_Read_Write_Data(const uint8_t txData) {
     uint8_t rxData;
-    HAL_SPI_TransmitReceive_DMA(&hspi1, &txData, &rxData, sizeof(txData));
+    HAL_SPI_TransmitReceive(&hspi1, &txData, &rxData, 1, 1000);
+    return rxData;
 }
