@@ -2,12 +2,10 @@
 // Created by DingYong on 2025/8/24.
 // @brif 用于bmi088 spi bsp层封装
 
-#include "main.h"
-#include "stm32f4xx_hal_gpio.h"
-
+#include "spi.h"
 #include "spi_bmi088.h"
 
-#include "spi.h"
+
 
 // SPI通讯时必须先拉低对应传感器对应的片选,通讯完成后拉高,避免总线上出现多个从设备同时响应
 
