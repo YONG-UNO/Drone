@@ -57,7 +57,10 @@ add_executable(${CMAKE_PROJECT_NAME}
         User/device/ssd1306/ssd1306.c
         User/device/ssd1306/ssd1306.h
         User/device/ssd1306/ascii_1208.h
-
+        User/connectivity/SPI/spi_bmi088/spi_bmi088.c
+        User/connectivity/SPI/spi_bmi088/spi_bmi088.h
+        User/device/bmi088/bmi088.c
+        User/device/bmi088/bmi088.h
 )
 
 # Add STM32CubeMX generated sources
@@ -82,6 +85,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     (${CMAKE_SOURCE_DIR}) User/algorithm
     (${CMAKE_SOURCE_DIR}) User/connectivity/CAN
     (${CMAKE_SOURCE_DIR}) User/connectivity/uart
+    (${CMAKE_SOURCE_DIR}) User/connectivity/SPI/spi_bmi088
+
 )
 
 # Add project symbols (macros)
