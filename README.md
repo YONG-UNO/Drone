@@ -1,6 +1,11 @@
 ## 书写规范
 ### void ist8310ResetStatus(PinState pinState)
-
+### 宏定义 
+```angular2html
+// 全部大写,中间用下划线连接
+#define BMI088_GYRO_SUSPEND_MODE 0x80
+#define BMI088_GYRO_DEEP_SUSPEND_MODE 0x20
+```
 ## cmake使用建议
 ### 路径
 ```
