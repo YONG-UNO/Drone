@@ -32,6 +32,37 @@ void BMI088_read_single_reg(const uint8_t reg, uint8_t *return_data) {
     *return_data = BMI088_Read_Write_Data(0x55);
 }
 
+/**
+ * @brief 从bmi088连续多个寄存器读取数据
+ *        适配SPI突发读(burst-read operations):手册 6.1.2:起始地址最高位置1后,后续地址自动递增
+ *        For example,to read the accelerometer values in SPI mode,the user has to
+ *        read 7 bytes(加速度计读取时不会立即发送,而是先发送一字节无效数据,之后再传输有效数据,所以手册里面
+ *        写的是7bytes,该spi特性只针对加速度计),starting from address 0x12(ACC data).
+ *        From these bytes the user must discard the first byte and finds the
+ *        acceleration information in byte #2-#7 (corresponding to the content of
+ *        the addresses 0x12 - 0x17)
+ * @param reg
+ * @param buf
+ * @param len
+ */
+void BMI088_read_muli_reg(uint8_t reg, uint8_t *buf, uint8_t len) {
+    // 发送突发读 起始地址:DS 6.1.2,起始地址最高位置1(& 0x80)后,
+    // 传感器会自动递增地址,无需重复发送后续地址
+    BMI088_Read_Write_Data(reg | 0x80);
+
+    while (len != 0) {
+        // 逐字节读取数据:发送0x55触发数据返回
+        // 0x55既不是寄存器地址,也不是特定命令
+        // 发送0x55是为了满足SPI "发-收同步"的时序:SPI是全双工同步,主机每发1字节(不管发的是地址,0x55还是别的什么),同时收到1字节数据
+        // 主机先发"带读命令的寄存器地址(reg | 0x80)" -> 对应时序里,SDI发送地址,SDO此时输出dummy字节,(传感器还没准备好数据)
+        // 接着主机发0x55 -> 这一步是"强制触发一次SPI传输",让传感器有足够时钟周期,把真实读的寄存器值放到SDO上
+        // simply put,0x55是"占位符",利用SPI全双工时序,逼着传感器将真实数据吐出来
+        *buf = BMI088_Read_Write_Data(0x55);
+        buf++;  // 缓冲区指针后移,存储下一字节数据
+        len--;  // 剩余读取长度递减,直至完成所有字节读取
+    }
+}
+
 /*
  * 拉低BMI088_GYRO_CS_L(选中传感器)
  * 调用BMI088_write_single_reg((reg),(data)) (写寄存器)
