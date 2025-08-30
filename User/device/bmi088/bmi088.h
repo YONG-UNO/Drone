@@ -56,12 +56,12 @@
 #define GYRO_RANGE_2000_K  0.00106526443603169529841533860381f
 
 #pragma pack(1)
-typedef struct BMI088_RAW_DATA {
+typedef struct {
     uint8_t status;
     int16_t accel[3];
     int16_t rate[3];
     int16_t temp;
-} bmi088_raw_data_t;
+} BMI088_RAW_DATA;
 
 typedef struct BMI088_OUTPUT_DATA {
     uint8_t status;
@@ -69,7 +69,7 @@ typedef struct BMI088_OUTPUT_DATA {
     float rate[3];
     float temp;
     float time;
-}bmi088_output_data_t;
+} BMI088_OUTPUT_DATA;
 
 #pragma pack()
 

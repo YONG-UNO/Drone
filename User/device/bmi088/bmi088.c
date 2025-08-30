@@ -11,6 +11,35 @@
 #define BMI088_ACCEL_K      ACC_RANGE_3G_K
 #define BMI088_GYRO_K       GYRO_RANGE_2000_K
 
+/*
+ * 拉低BMI088_GYRO_CS_L(选中传感器)
+ * 调用BMI088_write_single_reg((reg),(data)) (写寄存器)
+ * 拉高BMI088_GYRO_CS_H(释放寄存器)
+*/
+
+#define BMI088_accel_write_single_reg(reg,data)    \
+do {                                               \
+BMI088_GYRO_CS_L();                                \
+BMI088_write_single_reg((reg),(data));             \
+BMI088_GYRO_CS_H();                                \
+}while (0)
+
+#define BMI088_accel_read_single_reg(reg,data)      \
+do {                                                \
+BMI088_ACCEL_CS_L();                                \
+BMI088_Read_Write_Data((reg) | 0x80);               \
+BMI088_Read_Write_Data(0x55);                       \
+data = BMI088_Read_Write_Data(0x55);                \
+}while (0)
+
+#define BMI088_accel_write_muli_reg(reg, data, len) \
+do {                                                \
+BMI088_ACCEL_CS_L();                                \
+BMI088_write_muli_reg(reg, data, len);              \
+BMI088_ACCEL_CS_H();                                \
+}while (0)
+
+
 /**
  * @brief 向BMI088的 单个寄存器 写入 1字节数据
  *        根据手册 6.1.2
@@ -30,6 +59,28 @@ void BMI088_write_single_reg(const uint8_t reg, const uint8_t data) {
 void BMI088_read_single_reg(const uint8_t reg, uint8_t *return_data) {
     BMI088_Read_Write_Data(reg | 0x80);
     *return_data = BMI088_Read_Write_Data(0x55);
+}
+
+/**
+ * @brief 从bmi088连续多个寄存器写入数据
+ *        适配SPI突发读(burst-read operations):手册 6.1.2:起始地址最高位置1后,后续地址自动递增
+ *        For example,to read the accelerometer values in SPI mode,the user has to
+ *        read 7 bytes(加速度计读取时不会立即发送,而是先发送一字节无效数据,之后再传输有效数据,所以手册里面
+ *        写的是7bytes,该spi特性只针对加速度计),starting from address 0x12(ACC data).
+ *        From these bytes the user must discard the first byte and finds the
+ *        acceleration information in byte #2-#7 (corresponding to the content of
+ *        the addresses 0x12 - 0x17)
+ * @param reg
+ * @param buf
+ * @param len
+ */
+void BMI088_write_muli_reg(const uint8_t reg, const uint8_t *buf, uint8_t len) {
+    BMI088_Read_Write_Data(reg);
+    while (len != 0) {
+        BMI088_Read_Write_Data(*buf);
+        buf++;
+        len--;
+    }
 }
 
 /**
@@ -63,23 +114,9 @@ void BMI088_read_muli_reg(uint8_t reg, uint8_t *buf, uint8_t len) {
     }
 }
 
-/*
- * 拉低BMI088_GYRO_CS_L(选中传感器)
- * 调用BMI088_write_single_reg((reg),(data)) (写寄存器)
- * 拉高BMI088_GYRO_CS_H(释放寄存器)
-*/
+void BMI088_sense_read(BMI088_OUTPUT_DATA *bmi088_output_data) {
+    int16_t bmi088_raw_temp;
+    BMI088_RAW_DATA bmi088_raw_data;
 
-#define BMI088_accel_write_single_reg(reg,data)   \
-do {                                              \
-    BMI088_GYRO_CS_L();                           \
-    BMI088_write_single_reg((reg),(data));        \
-    BMI088_GYRO_CS_H();                           \
-}while (0)
-
-#define BMI088_accel_read_single_reg(reg,data)    \
-do {                                              \
-    BMI088_ACCEL_CS_L();                          \
-    BMI088_Read_Write_Data((reg) | 0x80);         \
-    BMI088_Read_Write_Data((reg) | 0x80);         \
-                                                  \
-}while (0)
+    BMI088_acc
+}
