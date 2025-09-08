@@ -45,6 +45,9 @@ git rm --cached main.exe   # 移除文件跟踪
 
 ## clion使用
 
+### 关闭代码补全
+### 编辑器->常规->内联补全
+
 ### 使用shift + ctrl + R:进行替换和查找
 ### clion自动生成注释
 ### Doxygen 风格注释：
