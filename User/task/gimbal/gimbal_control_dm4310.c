@@ -21,3 +21,4 @@ void gimbalControl_DM4310(void const * argument) {
         osDelay(1);
     }
 }
+
