@@ -1,0 +1,49 @@
+
+
+GraphedExpression="(motor_measure_DM4310[0]).position", Color=#e56a6f, Show=0
+GraphedExpression="(speed_pid_CAN_2006_M3_ID).feedback", Color=#35792b, Show=0
+GraphedExpression="(speed_pid_CAN_2006_M3_ID).target", Color=#769dda, Show=0
+GraphedExpression="(speed_pid_CAN_3508_M1_ID).target", Color=#b14f0d, Show=0
+GraphedExpression="(speed_pid_CAN_3508_M1_ID).feedback", Color=#55ffff, Show=0
+GraphedExpression="(speed_pid_CAN_3508_M1_ID).output", Color=#ab7b05, Show=0
+GraphedExpression="(speed_pid_CAN_3508_M1_ID).p_term", Color=#7fd3b7, Show=0
+GraphedExpression="(speed_pid_CAN_3508_M1_ID).i_term", Color=#50328f, Show=0
+GraphedExpression="(speed_pid_CAN_3508_M1_ID).d_term", Color=#c587a5, Show=0
+GraphedExpression="(angle_pid_CAN_6020_M4_ID).target", Color=#999401
+GraphedExpression="(angle_pid_CAN_6020_M4_ID).feedback", Color=#aa1d24
+GraphedExpression="(speed_pid_CAN_6020_M4_ID).p_term", Color=#86d27e
+GraphedExpression="(speed_pid_CAN_6020_M4_ID).i_term", Color=#2a5191
+GraphedExpression="(speed_pid_CAN_6020_M4_ID).d_term", Color=#f49758
+OpenDocument="main.c", FilePath="C:/Users/29039/Documents/stm32Project/Drone/Core/Src/main.c", Line=97
+OpenDocument="stm32f4xx_it.c", FilePath="C:/Users/29039/Documents/stm32Project/Drone/Core/Src/stm32f4xx_it.c", Line=80
+OpenDocument="stm32f4xx_hal_timebase_tim.c", FilePath="C:/Users/29039/Documents/stm32Project/Drone/Core/Src/stm32f4xx_hal_timebase_tim.c", Line=61
+OpenDocument="tasks.c", FilePath="C:/Users/29039/Documents/stm32Project/Drone/Middlewares/Third_Party/FreeRTOS/Source/tasks.c", Line=3641
+OpenDocument="usart.h", FilePath="C:/Users/29039/Documents/stm32Project/Drone/Core/Inc/usart.h", Line=0
+OpenDocument="startup_stm32f407xx.s", FilePath="C:/Users/29039/Documents/stm32Project/Drone/startup_stm32f407xx.s", Line=52
+OpenDocument="stm32f4xx_hal_can.c", FilePath="C:/Users/29039/Documents/stm32Project/Drone/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_can.c", Line=1513
+OpenDocument="stm32f4xx_hal.h", FilePath="C:/Users/29039/Documents/stm32Project/Drone/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h", Line=1
+OpenDocument="bsp_iic.c", FilePath="C:/Users/29039/Documents/stm32Project/Drone/User/connectivity/iic/bsp_iic.c", Line=106
+OpenDocument="port.c", FilePath="C:/Users/29039/Documents/stm32Project/Drone/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c", Line=207
+OpenDocument="stm32f4xx_hal.c", FilePath="C:/Users/29039/Documents/stm32Project/Drone/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c", Line=381
+OpenToolbar="Debug", Floating=0, x=0, y=0
+OpenWindow="Memory 1", DockArea=BOTTOM, x=2, y=0, w=379, h=152, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, EditorAddress=0x200000B8
+OpenWindow="Watched Data 1", DockArea=LEFT, x=0, y=0, w=634, h=1328, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Data Sampling", DockArea=BOTTOM, x=0, y=0, w=296, h=152, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, VisibleTab=0, UniformSampleSpacing=0
+OpenWindow="Timeline", DockArea=BOTTOM, x=1, y=0, w=621, h=152, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=1, DataPaneShown=1, PowerPaneShown=0, CodePaneShown=0, PinCursor="Cursor Movable", TimePerDiv="2 s", TimeStampFormat="Time", DataGraphDrawAsPoints=0, DataGraphLegendShown=1, DataGraphUniformSampleSpacing=0, DataGraphLegendPosition="0;-351", DataGraphShowNamesAtCursor=0, PowerGraphDrawAsPoints=0, PowerGraphLegendShown=0, PowerGraphAvgFilterTime=Off, PowerGraphAvgFilterLen=Off, PowerGraphUniformSampleSpacing=0, PowerGraphLegendPosition="385;-69", CodeGraphLegendShown=0, CodeGraphLegendPosition="401;0"
+SmartViewPlugin="", Page="", Toolbar="Hidden", Window="SmartView 1"
+TableHeader="Data Sampling Table", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";" (motor_measure_DM4310[0]).position";" (speed_pid_CAN_2006_M3_ID).feedback";" (speed_pid_CAN_2006_M3_ID).target";" (speed_pid_CAN_3508_M1_ID).target";" (speed_pid_CAN_3508_M1_ID).feedback";" (speed_pid_CAN_3508_M1_ID).output";" (speed_pid_CAN_3508_M1_ID).p_term";" (speed_pid_CAN_3508_M1_ID).i_term";" (speed_pid_CAN_3508_M1_ID).d_term";" (angle_pid_CAN_6020_M4_ID).target";" (angle_pid_CAN_6020_M4_ID).feedback";" (speed_pid_CAN_6020_M4_ID).p_term";" (speed_pid_CAN_6020_M4_ID).i_term";" (speed_pid_CAN_6020_M4_ID).d_term"], ColWidths=[100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100]
+TableHeader="Data Sampling Setup", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Type";"Value";"Min";"Max";"Average";"# Changes";"Min. Change";"Max. Change"], ColWidths=[334;100;100;100;100;114;110;126;126]
+TableHeader="Power Sampling", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";"Ch 0"], ColWidths=[100;100;100]
+TableHeader="Watched Data 1", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Value";"Location";"Refresh"], ColWidths=[130;428;104;100]
+TableHeader="RegisterSelectionDialog", SortCol="None", SortOrder="ASCENDING", VisibleCols=[], ColWidths=[]
+TableHeader="TargetExceptionDialog", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Address";"Description"], ColWidths=[200;100;100;366]
+WatchedExpression="RC", RefreshRate=5, Window=Watched Data 1
+WatchedExpression="motor_measure", RefreshRate=5, Window=Watched Data 1
+WatchedExpression="speed_pid_CAN_3508_M1_ID", RefreshRate=5, Window=Watched Data 1
+WatchedExpression="speed_pid_CAN_3508_M2_ID", RefreshRate=5, Window=Watched Data 1
+WatchedExpression="target_rpm_M1", RefreshRate=5, Window=Watched Data 1
+WatchedExpression="target_rpm_M2", RefreshRate=5, Window=Watched Data 1
+WatchedExpression="speed_pid_CAN_2006_M3_ID", RefreshRate=5, Window=Watched Data 1
+WatchedExpression="target_rpm_M3", RefreshRate=5, Window=Watched Data 1
+WatchedExpression="speed_pid_CAN_6020_M4_ID", RefreshRate=5, Window=Watched Data 1
+WatchedExpression="angle_pid_CAN_6020_M4_ID", RefreshRate=5, Window=Watched Data 1

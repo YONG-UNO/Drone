@@ -61,6 +61,8 @@ add_executable(${CMAKE_PROJECT_NAME}
         User/connectivity/SPI/spi_bmi088/spi_bmi088.h
         User/device/bmi088/bmi088.c
         User/device/bmi088/bmi088.h
+        User/task/gimbal/gimbal_control_dm4310.c
+        User/task/gimbal/gimbal_control_dm4310.h
 )
 
 # Add STM32CubeMX generated sources
@@ -85,6 +87,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     (${CMAKE_SOURCE_DIR}) User/algorithm
     (${CMAKE_SOURCE_DIR}) User/connectivity/CAN
     (${CMAKE_SOURCE_DIR}) User/connectivity/uart
+    (${CMAKE_SOURCE_DIR}) User/connectivity/iic
     (${CMAKE_SOURCE_DIR}) User/connectivity/SPI/spi_bmi088
 
 )

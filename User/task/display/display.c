@@ -6,6 +6,7 @@
 #include "cmsis_os.h"
 #include "display.h"
 
+#include "dbus.h"
 #include "User/device/ssd1306/ssd1306.h"
 
 
@@ -95,9 +96,9 @@ void Display(void const * argument) {
         // OLED_draw_point(61,35,PEN_WRITE);
 
 
-        OLED_draw_data(0xA0,0,-999.9879907f,-278390.43423f);
+        OLED_draw_data(0xA0,0,RC.ch0,RC.ch1);
         OLED_refresh_gram();
 
-        osDelay(1000);
+        osDelay(10);
     }
 }

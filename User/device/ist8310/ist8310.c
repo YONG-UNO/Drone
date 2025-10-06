@@ -8,7 +8,7 @@
 
 #include "main.h"
 #include "stm32f4xx_hal.h"
-#include "User/connectivity/iic/bsp_iic.h"
+#include "bsp_iic.h"
 
 static const uint8_t ist8310_Write_Register_Data_Error[4][3] = {
     {0x0A, 0x0B, 0x01},     // 寄存器:0x0A   写入:0x0B|1011 (按手册的意思是保留值:200Hz输出)   错误码:0x01

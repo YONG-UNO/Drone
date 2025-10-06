@@ -114,9 +114,9 @@ void BMI088_read_muli_reg(uint8_t reg, uint8_t *buf, uint8_t len) {
     }
 }
 
-void BMI088_sense_read(BMI088_OUTPUT_DATA *bmi088_output_data) {
-    int16_t bmi088_raw_temp;
-    BMI088_RAW_DATA bmi088_raw_data;
-
-    BMI088_acc
-}
+// void BMI088_sense_read(BMI088_OUTPUT_DATA *bmi088_output_data) {
+//     int16_t bmi088_raw_temp;
+//     BMI088_RAW_DATA bmi088_raw_data;
+//
+//     BMI088_read_single_reg()
+// }

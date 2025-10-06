@@ -175,7 +175,7 @@ void sendCmdGimbal_DM4310(float torq) {
     tx_header.RTR   = CAN_RTR_DATA;
     tx_header.DLC   = 0x08;
 
-    float    pos = 0,vel = 0,kp = 0,kd = 0;
+    float pos = 0,vel = 0,kp = 0,kd = 0;
     uint16_t pos_tmp,vel_tmp,kp_tmp,kd_tmp,tor_tmp;
     pos_tmp = float_to_uint(pos, -PMAX, PMAX, 16);
     vel_tmp = float_to_uint(vel, -VMAX, VMAX, 12);
