@@ -70,12 +70,16 @@ float uint_to_float(int x_int, float x_min, float x_max, int bits)
 
 /**
  * @brief  float转uint
- * @param  x_int   最大值
  * @param  x_min   最小值
+ * @param  x_max   最大值
  * @param  bits    位数
+ * @version 1.0.1  限制x的范围,防止超出上下限
  */
 int float_to_uint(float x, float x_min, float x_max, int bits)
 {
+    if (x < x_min) x = x_min;
+    if (x > x_max) x = x_max;
+
     float span = x_max - x_min;
     float offset = x_min;
     return (int) ((x-offset)*((float)((1<<bits)-1))/span);
