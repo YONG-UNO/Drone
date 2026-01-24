@@ -7,6 +7,16 @@ cmake_minimum_required(VERSION 3.22)
 # User is free to modify the file as much as necessary
 #
 
+
+# 1.预处理：处理代码中的#include、#define等指令（比如把#include "RS05.h"的内容直接复制到源文件中，把宏定义替换成实际值）。
+# 2.编译：把预处理后的.c/.cpp源文件，翻译成「汇编代码」，再进一步翻译成「二进制机器指令」（生成.o目标文件，电脑能识别，但还不能直接运行）。
+# 3.链接：把所有的.o目标文件（比如conversion.o、RS05.o、STM32 库的.o文件）和链接脚本（.ld）整合起来，生成完整的.elf可执行文件。
+# 4.转换：把.elf文件转换成.hex/.bin文件（便于烧录到 STM32 芯片中运行）。
+
+# .c文件（源文件）：存放「实现逻辑」，是「可执行的代码」
+# .h文件（头文件）：存放「声明信息」，是「参考说明文档」,
+# .h文件的内容会在「预处理阶段」被整合到.c文件中，无需单独编译,也没有逻辑,不可以编译
+
 # Setup compiler settings
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
