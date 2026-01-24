@@ -35,34 +35,23 @@ message("Build type: " ${CMAKE_BUILD_TYPE})
 enable_language(C ASM)
 
 # Create an executable object type
+# 嵌入式项目中，头文件（.h/.hpp）无需添加到 add_executable 中
+#（CMake 仅需要源文件用于编译，头文件通过 target_include_directories 关联即可），删除所有头文件，仅保留源文件（.c/.cpp/.s）
 add_executable(${CMAKE_PROJECT_NAME}
         User/connectivity/iic/bsp_iic.c
-        User/connectivity/iic/bsp_iic.h
         User/device/ist8310/ist8310.c
-        User/device/ist8310/ist8310.h
         User/Math/conversion.c
-        User/Math/conversion.h
         User/task/gimbal/gimbal_control.c
-        User/task/gimbal/gimbal_control.h
         User/Math/limit.c
-        User/Math/limit.h
         User/task/shoot/shoot_control.c
-        User/task/shoot/shoot_control.h
         User/task/autoAiming/autoAiming.c
-        User/task/autoAiming/autoAiming.h
         User/connectivity/VPC/vpc.c
-        User/connectivity/VPC/vpc.h
         User/task/display/display.c
-        User/task/display/display.h
         User/device/ssd1306/ssd1306.c
-        User/device/ssd1306/ssd1306.h
-        User/device/ssd1306/ascii_1208.h
         User/connectivity/SPI/spi_bmi088/spi_bmi088.c
-        User/connectivity/SPI/spi_bmi088/spi_bmi088.h
         User/device/bmi088/bmi088.c
-        User/device/bmi088/bmi088.h
         User/task/gimbal/gimbal_control_dm4310.c
-        User/task/gimbal/gimbal_control_dm4310.h
+        User/device/RS05/RS05.cpp
 )
 
 # Add STM32CubeMX generated sources
@@ -76,20 +65,22 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
-        User/algorithm/PID.c
-        User/connectivity/CAN/bsp_can.c
-        User/connectivity/uart/dbus.c
 )
 
 # Add include paths
+# 步骤 1：CMake 中用 target_include_directories 配置「头文件搜索路径」
+# 这是「给编译器指路」的关键步骤，你在 CMakeLists.txt 中已经配置了 target_include_directories，修复语法后，它的作用就是告诉编译器：「去这些目录下找我需要的头文件」。
+# 步骤 2：代码中用 #include 指令引入头文件（你已在代码中实现）
+# 这是「源文件主动查找头文件」的步骤，在需要使用头文件声明的源文件中，通过 #include 引入对应的头文件，编译器就会根据步骤 1 配置的搜索路径，找到并解析该头文件。
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
-    (${CMAKE_SOURCE_DIR}) User/algorithm
-    (${CMAKE_SOURCE_DIR}) User/connectivity/CAN
-    (${CMAKE_SOURCE_DIR}) User/connectivity/uart
-    (${CMAKE_SOURCE_DIR}) User/connectivity/iic
-    (${CMAKE_SOURCE_DIR}) User/connectivity/SPI/spi_bmi088
-
+    ${CMAKE_SOURCE_DIR}/User/algorithm
+    ${CMAKE_SOURCE_DIR}/User/connectivity/CAN
+    ${CMAKE_SOURCE_DIR}/User/connectivity/uart
+    ${CMAKE_SOURCE_DIR}/User/connectivity/iic
+    ${CMAKE_SOURCE_DIR}/User/connectivity/SPI/spi_bmi088
+    ${CMAKE_SOURCE_DIR}/User/device/RS05
+    ${CMAKE_SOURCE_DIR}/User/Math
 )
 
 # Add project symbols (macros)
