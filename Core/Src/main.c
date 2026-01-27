@@ -34,12 +34,13 @@
 #include <stdbool.h>
 
 #include "bsp_can.h"
+#include "RS05.h"
 #include "dbus.h"
-#include "PID.h"
-#include "User/connectivity/iic/bsp_iic.h"
-#include "User/connectivity/VPC/vpc.h"
-#include "User/device/ist8310/ist8310.h"
-#include "User/device/ssd1306/ssd1306.h"
+#include "PID/pid.h"
+#include "bsp_iic.h"
+#include "vpc.h"
+#include "ist8310.h"
+#include "ssd1306.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,6 +57,7 @@ bool has_new_cmd = false;     // 新指令标志位
 //can
 motor_measure_t        motor_measure[4]        = {0};
 motor_measure_DM4310_t motor_measure_DM4310[1] = {0};
+motor_measure_RS05_t   motor_measure_RS05[1]   = {0};
 
 // pid
 pid_t speed_pid_CAN_3508_M1_ID;
@@ -66,6 +68,11 @@ pid_t angle_pid_CAN_6020_M4_ID;
 
 pid_t speed_pid_DM4310;
 pid_t angle_pid_DM4310;
+
+pid_t speed_pid_CAN_RS05;
+pid_t angle_pid_CAN_RS05;
+
+float temp_target_6020 = 5470.0f;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -153,9 +160,11 @@ int main(void)
   pidInit(&speed_pid_DM4310, 1, 0 , 0, 2.5f, 0);
   pidInit(&angle_pid_DM4310, 0.01f, 0.01f, 0.2f, 2, 0.03f);
 
-  pidInit(&speed_pid_CAN_6020_M4_ID, 30, 0.1f, 0, 10000, 200);  // voltageMax 25000
-  pidInit(&angle_pid_CAN_6020_M4_ID, 1, 0, 0, 200, 0);
+  pidInit(&speed_pid_CAN_6020_M4_ID, 35.0f, 0.0f, 0, 25000, 200);  // voltageMax 25000
+  pidInit(&angle_pid_CAN_6020_M4_ID, 4.0f, 0, 0, 800, 0);
 
+  pidInit(&speed_pid_CAN_RS05, 0.3f,0,0,5.5f,1.0f);
+  pidInit(&angle_pid_CAN_RS05, 13,0.1f,0,30,1.6f);
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */

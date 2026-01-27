@@ -24,7 +24,7 @@
 /* USER CODE BEGIN INCLUDE */
 #include <stdbool.h>
 
-#include "User/connectivity/VPC/vpc.h"
+#include "vpc.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/

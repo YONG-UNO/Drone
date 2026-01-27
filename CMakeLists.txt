@@ -18,9 +18,9 @@ cmake_minimum_required(VERSION 3.22)
 # .h文件的内容会在「预处理阶段」被整合到.c文件中，无需单独编译,也没有逻辑,不可以编译
 
 # Setup compiler settings
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS ON)
+set(CMAKE_C_EXTENSIONS OFF)
 
 
 # Define the build type
@@ -43,25 +43,35 @@ message("Build type: " ${CMAKE_BUILD_TYPE})
 
 # Enable CMake support for ASM and C languages
 enable_language(C ASM)
+# 启用C++支持(适配.cpp文件)
+enable_language(CXX)
+# 添加C++标准(嵌入式常用C++17/C++11)
+set(CMAKE_ASM_STANDARD_REQUIRED 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)           # 禁用编译器特有拓展,提升代码可移植性
 
 # Create an executable object type
 # 嵌入式项目中，头文件（.h/.hpp）无需添加到 add_executable 中
 #（CMake 仅需要源文件用于编译，头文件通过 target_include_directories 关联即可），删除所有头文件，仅保留源文件（.c/.cpp/.s）
 add_executable(${CMAKE_PROJECT_NAME}
-        User/connectivity/iic/bsp_iic.c
-        User/device/ist8310/ist8310.c
-        User/Math/conversion.c
-        User/task/gimbal/gimbal_control.c
-        User/Math/limit.c
-        User/task/shoot/shoot_control.c
-        User/task/autoAiming/autoAiming.c
-        User/connectivity/VPC/vpc.c
-        User/task/display/display.c
-        User/device/ssd1306/ssd1306.c
-        User/connectivity/SPI/spi_bmi088/spi_bmi088.c
-        User/device/bmi088/bmi088.c
-        User/task/gimbal/gimbal_control_dm4310.c
-        User/device/RS05/RS05.cpp
+        User/modules/Algorithm/PID/pid.c
+        User/modules/VPC/vpc.c
+        User/modules/bmi088/bmi088.c
+        User/modules/ist8310/ist8310.c
+        User/modules/RS05/RS05.cpp
+        User/modules/ssd1306/ssd1306.c
+        User/Application/autoAiming/autoAiming.c
+        User/Application/display/display.c
+        User/Application/gimbal/gimbal_control_RS05.c
+        User/Application/gimbal/gimbal_control.c
+        User/Application/shoot/shoot_control.c
+        User/BSP/CAN/bsp_can.c
+        User/BSP/IIC/bsp_iic.c
+        User/BSP/SPI/spi_bmi088/bsp_spi_bmi088.c
+        User/BSP/UART/dbus.c
+        User/modules/Math/conversion.c
+        User/modules/Math/limit.c
+        User/modules/RS05/RS05.cpp
 )
 
 # Add STM32CubeMX generated sources
@@ -84,13 +94,23 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 # 这是「源文件主动查找头文件」的步骤，在需要使用头文件声明的源文件中，通过 #include 引入对应的头文件，编译器就会根据步骤 1 配置的搜索路径，找到并解析该头文件。
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
-    ${CMAKE_SOURCE_DIR}/User/algorithm
-    ${CMAKE_SOURCE_DIR}/User/connectivity/CAN
-    ${CMAKE_SOURCE_DIR}/User/connectivity/uart
-    ${CMAKE_SOURCE_DIR}/User/connectivity/iic
-    ${CMAKE_SOURCE_DIR}/User/connectivity/SPI/spi_bmi088
-    ${CMAKE_SOURCE_DIR}/User/device/RS05
-    ${CMAKE_SOURCE_DIR}/User/Math
+        ${CMAKE_SOURCE_DIR}/User/Application/autoAiming
+        ${CMAKE_SOURCE_DIR}/User/Application/display
+        ${CMAKE_SOURCE_DIR}/User/Application/gimbal
+        ${CMAKE_SOURCE_DIR}/User/Application/shoot
+
+        ${CMAKE_SOURCE_DIR}/User/Modules/Algorithm
+        ${CMAKE_SOURCE_DIR}/User/Modules/bmi088
+        ${CMAKE_SOURCE_DIR}/User/Modules/ist8310
+        ${CMAKE_SOURCE_DIR}/User/Modules/Math
+        ${CMAKE_SOURCE_DIR}/User/Modules/RS05
+        ${CMAKE_SOURCE_DIR}/User/Modules/ssd1306
+        ${CMAKE_SOURCE_DIR}/User/Modules/VPC
+
+        ${CMAKE_SOURCE_DIR}/User/BSP/CAN
+        ${CMAKE_SOURCE_DIR}/User/BSP/IIC
+        ${CMAKE_SOURCE_DIR}/User/BSP/SPI/spi_bmi088
+        ${CMAKE_SOURCE_DIR}/User/BSP/UART
 )
 
 # Add project symbols (macros)

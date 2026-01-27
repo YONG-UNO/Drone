@@ -51,7 +51,7 @@ osThreadId GimbalHandle;
 osThreadId ShootHandle;
 osThreadId AutoAimingHandle;
 osThreadId myTask04Handle;
-osThreadId Gimbal_DM4310Handle;
+osThreadId Gimbal_RS05Handle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -62,7 +62,7 @@ void gimbalControl(void const * argument);
 void shootControl(void const * argument);
 void autoAiming(void const * argument);
 void Display(void const * argument);
-void gimbalControl_DM4310(void const * argument);
+void gimbalControl_RS05(void const * argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -126,9 +126,9 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(myTask04, Display, osPriorityIdle, 0, 256);
   myTask04Handle = osThreadCreate(osThread(myTask04), NULL);
 
-  /* definition and creation of Gimbal_DM4310 */
-  osThreadDef(Gimbal_DM4310, gimbalControl_DM4310, osPriorityIdle, 0, 256);
-  Gimbal_DM4310Handle = osThreadCreate(osThread(Gimbal_DM4310), NULL);
+  /* definition and creation of Gimbal_RS05 */
+  osThreadDef(Gimbal_RS05, gimbalControl_RS05, osPriorityIdle, 0, 256);
+  Gimbal_RS05Handle = osThreadCreate(osThread(Gimbal_RS05), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -210,22 +210,22 @@ __weak void Display(void const * argument)
   /* USER CODE END Display */
 }
 
-/* USER CODE BEGIN Header_gimbalControl_DM4310 */
+/* USER CODE BEGIN Header_gimbalControl_RS05 */
 /**
-* @brief Function implementing the Gimbal_DM4310 thread.
+* @brief Function implementing the Gimbal_RS05 thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_gimbalControl_DM4310 */
-__weak void gimbalControl_DM4310(void const * argument)
+/* USER CODE END Header_gimbalControl_RS05 */
+__weak void gimbalControl_RS05(void const * argument)
 {
-  /* USER CODE BEGIN gimbalControl_DM4310 */
+  /* USER CODE BEGIN gimbalControl_RS05 */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END gimbalControl_DM4310 */
+  /* USER CODE END gimbalControl_RS05 */
 }
 
 /* Private application code --------------------------------------------------*/
