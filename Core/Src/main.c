@@ -163,8 +163,8 @@ int main(void)
   pidInit(&speed_pid_CAN_6020_M4_ID, 35.0f, 0.0f, 0, 25000, 200);  // voltageMax 25000
   pidInit(&angle_pid_CAN_6020_M4_ID, 4.0f, 0, 0, 800, 0);
 
-  pidInit(&speed_pid_CAN_RS05, 0.3f,0,0,5.5f,1.0f);
-  pidInit(&angle_pid_CAN_RS05, 13,0.1f,0,30,1.6f);
+  pidInit(&speed_pid_CAN_RS05, 0.35f,0,0.2,3.0f,1.0f);
+  pidInit(&angle_pid_CAN_RS05, 20,0.1f,15,30,3.0f);
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */

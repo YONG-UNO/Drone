@@ -46,7 +46,7 @@ enable_language(C ASM)
 # 启用C++支持(适配.cpp文件)
 enable_language(CXX)
 # 添加C++标准(嵌入式常用C++17/C++11)
-set(CMAKE_ASM_STANDARD_REQUIRED 17)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)           # 禁用编译器特有拓展,提升代码可移植性
 

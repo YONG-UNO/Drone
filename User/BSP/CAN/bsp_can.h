@@ -20,7 +20,7 @@
 // CAN2:
 # define  CAN_6020_M4_ID    0x205    //204+1
 # define  CAN_4310_M5_ID    0x11
-#define   CAN_RS05_M6_ID    0x0C
+# define   CAN_RS05_M6_ID    0x0C
 
 // dm4310配置
 # define  PMAX              12.5     // 位置
