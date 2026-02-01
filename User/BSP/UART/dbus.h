@@ -4,6 +4,7 @@
 
 #ifndef DBUS_H
 #define DBUS_H
+#include <stdbool.h>
 #include <stdint.h>
 
 
@@ -61,5 +62,7 @@ extern RC_t RC;
 extern uint8_t RC_Data[18];
 
 void rcDecode(void);
+bool rcFrameValid(uint8_t *data);
+
 
 #endif //DBUS_H

@@ -4,7 +4,6 @@
 
 #include "dbus.h"
 
-
 void rcDecode(void) {
     RC.ch0 = (((uint16_t)RC_Data[0] | (uint16_t)RC_Data[1] << 8) & 0x07FF) - 1024;  //移位运算符优先级高于位运算符
     RC.ch1 = (((uint16_t)RC_Data[1] >> 3 | (uint16_t)RC_Data[2] << 5) & 0x07FF) - 1024;
@@ -24,6 +23,30 @@ void rcDecode(void) {
 
     RC.dialWheel = ((uint16_t)RC_Data[16] | (uint16_t)RC_Data[17] << 8);
 }
+
+// 校验函数：判断一帧数据是否合理
+bool rcFrameValid(const uint8_t *data) {
+    uint16_t ch0 = (((uint16_t)data[0] | (uint16_t)data[1] << 8) & 0x07FF);
+    uint16_t ch1 = (((uint16_t)data[1] >> 3 | (uint16_t)data[2] << 5) & 0x07FF);
+    uint16_t ch2 = (((uint16_t)data[2] >> 6 | (uint16_t)data[3] << 2 | (uint16_t)data[4] << 10) & 0x07FF);
+    uint16_t ch3 = (((uint16_t)data[4] >> 1 | (uint16_t)data[5] << 7) & 0x07FF);
+
+    uint8_t s1 = (data[5] >> 6) & 0x03;
+    uint8_t s2 = (data[5] >> 4) & 0x03;
+
+    // 判断通道是否在合理范围
+    if (ch0 < 364 || ch0 > 1684) return false;
+    if (ch1 < 364 || ch1 > 1684) return false;
+    if (ch2 < 364 || ch2 > 1684) return false;
+    if (ch3 < 364 || ch3 > 1684) return false;
+
+    // 判断开关是否在合法范围
+    if (s1 < 1 || s1 > 3) return false;
+    if (s2 < 1 || s2 > 3) return false;
+
+    return true; // 合法帧
+}
+
 
 //补充:错误消息
 //侧拨轮
