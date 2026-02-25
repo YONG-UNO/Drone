@@ -91,8 +91,8 @@ float temp_target_6020 = 5470.0f;
 float magneticField[3];
 float temperature = 1.0;
 float input_DM4310;
-float target_rpm_M1 = 6000.0f;
-float target_rpm_M2 = -6000.0f;
+float target_rpm_M1 = -6000.0f;
+float target_rpm_M2 = 6000.0f;
 float target_rpm_M3 = 6000.0f;//10800.0f
 /* USER CODE END PV */
 
@@ -160,8 +160,8 @@ int main(void)
   pidInit(&speed_pid_DM4310, 1, 0 , 0, 2.5f, 0);
   pidInit(&angle_pid_DM4310, 0.01f, 0.01f, 0.2f, 2, 0.03f);
 
-  pidInit(&speed_pid_CAN_6020_M4_ID, 35.0f, 0.0f, 0, 25000, 200);  // voltageMax 25000
-  pidInit(&angle_pid_CAN_6020_M4_ID, 4.0f, 0, 0, 800, 0);
+  pidInit(&speed_pid_CAN_6020_M4_ID, 25.0f, 0.0f, 0, 25000, 200);  // voltageMax 25000
+  pidInit(&angle_pid_CAN_6020_M4_ID, 7.0f, 0.001, 3, 800, 200);
 
   pidInit(&speed_pid_CAN_RS05, 0.35f,0,0.2,3.0f,1.0f);
   pidInit(&angle_pid_CAN_RS05, 20,0.1f,15,30,3.0f);
@@ -235,7 +235,11 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
   (void)huart;   //消除未使用参数警告
-  rcDecode();
+  if (rcFrameValid(RC_Data)) {
+    rcDecode();
+  } else {
+    // 丢弃,等待下一帧
+  }
 }
 
 // void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {

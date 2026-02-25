@@ -25,7 +25,7 @@ void rcDecode(void) {
 }
 
 // 校验函数：判断一帧数据是否合理
-bool rcFrameValid(const uint8_t *data) {
+bool rcFrameValid(uint8_t *data) {
     uint16_t ch0 = (((uint16_t)data[0] | (uint16_t)data[1] << 8) & 0x07FF);
     uint16_t ch1 = (((uint16_t)data[1] >> 3 | (uint16_t)data[2] << 5) & 0x07FF);
     uint16_t ch2 = (((uint16_t)data[2] >> 6 | (uint16_t)data[3] << 2 | (uint16_t)data[4] << 10) & 0x07FF);
