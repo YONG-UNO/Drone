@@ -22,6 +22,7 @@
 
 #ifndef __USBD_CDC_IF_H__
 #define __USBD_CDC_IF_H__
+#include <stdbool.h>
 
 #ifdef __cplusplus
  extern "C" {
@@ -109,6 +110,24 @@ extern USBD_CDC_ItfTypeDef USBD_Interface_fops_FS;
 uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
 
 /* USER CODE BEGIN EXPORTED_FUNCTIONS */
+/* 消息结构体 */
+#pragma pack(1)
+     typedef struct {
+         char start;          // 0字节：帧头 's'
+         char type;           // 1字节：消息类型 0xA0
+         char find_bool;      // 2字节：是否追踪 (0/1)
+         float yaw;           // 3-6字节：偏航角 (4字节float)
+         float pitch;         // 7-10字节：俯仰角 (4字节float)
+         char reserve[20];    // 11-30字节：预留空位（20字节）
+         char end;            // 31字节：帧尾 'e'
+     }  aim_receive_t;
+#pragma pack()
+
+     typedef struct {
+         float target_yaw_aim;
+         float
+         target_pitch_aim;
+     } aim_receive_decode_t;
 
 /* USER CODE END EXPORTED_FUNCTIONS */
 

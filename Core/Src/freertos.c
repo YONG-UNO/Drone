@@ -52,6 +52,7 @@ osThreadId ShootHandle;
 osThreadId AutoAimingHandle;
 osThreadId myTask04Handle;
 osThreadId Gimbal_RS05Handle;
+osThreadId USBTaskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -63,6 +64,7 @@ void shootControl(void const * argument);
 void autoAiming(void const * argument);
 void Display(void const * argument);
 void gimbalControl_RS05(void const * argument);
+void USB(void const * argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -129,6 +131,10 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of Gimbal_RS05 */
   osThreadDef(Gimbal_RS05, gimbalControl_RS05, osPriorityIdle, 0, 256);
   Gimbal_RS05Handle = osThreadCreate(osThread(Gimbal_RS05), NULL);
+
+  /* definition and creation of USBTask */
+  osThreadDef(USBTask, USB, osPriorityIdle, 0, 256);
+  USBTaskHandle = osThreadCreate(osThread(USBTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -226,6 +232,24 @@ __weak void gimbalControl_RS05(void const * argument)
     osDelay(1);
   }
   /* USER CODE END gimbalControl_RS05 */
+}
+
+/* USER CODE BEGIN Header_USB */
+/**
+* @brief Function implementing the USBTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_USB */
+__weak void USB(void const * argument)
+{
+  /* USER CODE BEGIN USB */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END USB */
 }
 
 /* Private application code --------------------------------------------------*/

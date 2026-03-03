@@ -7,9 +7,6 @@
 #include "bsp_can.h"
 #include "cmsis_os.h"
 
-#include <math.h>
-
-// 异常保护参数配置（宏定义更便于后续调试修改）
 #define MOTOR_POS_MIN    1.51f   // 电机位置下限
 #define MOTOR_POS_MAX    2.03f    // 电机位置上限
 #define MAX_TORQUE       2.0f    // 最大允许力矩
@@ -30,15 +27,19 @@ void gimbalControl_RS05(void const * argument) {
 
     for (;;) {
         // ************************ 1. 电机基础使能/失能控制（遥控器S2开关） ************************
-        if (RC.s2 == 1) {
+        if (RC.s2 == 1 || RC.s2 == 2) {
             RS05_Enable();  // 使能电机（S2拨到1档，进入可控状态）
-        } else if (RC.s2 == 2 || RC.s2 == 3) {
+        } else if (RC.s2 == 3) {
             RS05_Disable(); // 失能电机（S2拨到2/3档，电机锁死）
+            osDelay(20);
+            continue;
         }
 
-        // ************************ 2. 无论是否使能，都执行PID计算（满足需求2） ************************
-        // a. 摇杆值映射为目标角度（反转映射：660→1.47f，-660→2.0f）
-        target_angle = RC2Angle_RS05(RC.ch1);
+        if (RC.s2 == 1) {
+            target_angle = RC2Angle_RS05(RC.ch1);
+        }else if (RC.s2 == 2) {
+            target_angle = aim_receive_decode.target_pitch_aim;
+        }
 
         // b. 串级PID计算（始终执行，即使电机失能）
         target_torque = pidCascade(&angle_pid_CAN_RS05,
@@ -58,16 +59,13 @@ void gimbalControl_RS05(void const * argument) {
 
         // ************************ 4. 仅在电机使能时，驱动RS05电机（失能时不发送指令） ************************
 
-        // 取消这里的注释
-        // if (RC.s2 == 1) {
-        //     RS05_MIT_Control(
-        //         0.0f,  // 目标位置（rad）
-        //         0.0f,  // 目标速度（rad/s）
-        //         0.0f,        // KP（位置环比例系数，可调试）
-        //         0.0f,          // KD（速度环微分系数，可调试）
-        //         -target_torque  // 目标力矩（N·m，来自速度PID输出）
-        //     );
-        // }
+        RS05_MIT_Control(
+            0.0f,  // 目标位置（rad）
+            0.0f,  // 目标速度（rad/s）
+            0.0f,        // KP（位置环比例系数，可调试）
+            0.0f,          // KD（速度环微分系数，可调试）
+            -target_torque  // 目标力矩（N·m，来自速度PID输出）
+        );
 
         // ************************ 5. 任务延时（控制PID执行频率，20ms=50Hz） ************************
         osDelay(20);

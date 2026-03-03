@@ -33,8 +33,13 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-extern A0_Frame a0_frame;
-extern bool has_new_cmd;
+aim_receive_t aim_receive;
+
+
+aim_receive_decode_t aim_receive_decode = {
+    .target_yaw_aim = 0,
+    .target_pitch_aim = 0
+};
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -265,36 +270,30 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
+    // 校验帧长度：必须32字节（固定帧长）
+    if (*Len != 32) {
+        // 长度错误，重新准备接收
+        USBD_CDC_SetRxBuffer(&hUsbDeviceFS, Buf);
+        USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+        return USBD_OK;
+    }
 
-  // ↑ USB CDC接收回调函数 (上位机发数据时自动触发)
+    aim_receive = *(aim_receive_t *)Buf;
 
-  // 1. 检查帧长度是否正确(必须32字节)
-  if (*Len != FRAME_LEN) {
-    // 长度错误,忽略该帧
-    USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
+    // 校验帧头、帧尾、类型（合法0xA0帧）
+    if (aim_receive.start == 's' &&
+        aim_receive.end == 'e' &&
+        aim_receive.type == 0xA0) {
+
+        aim_receive_decode.target_yaw_aim = aim_receive.yaw;
+        aim_receive_decode.target_pitch_aim = aim_receive.pitch;
+        }
+
+    // 重新准备下一次接收
+    USBD_CDC_SetRxBuffer(&hUsbDeviceFS, Buf);
     USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
-    return (USBD_OK);
-  }
-
-  // 2. 强制转换为A0帧结构体
-  A0_Frame *receive_frame = (A0_Frame *)Buf;
-
-  // 3. 校验帧头,帧尾,和类型(确保是合法的0xA0帧)
-  if (receive_frame->start == FRAME_HEADER &&
-      receive_frame->end   == FRAME_TRAILER &&
-      receive_frame->type  == CMD_A0) {
-
-    // 4. 复制有效数据到全局结构体变量a0_frame
-    a0_frame = *receive_frame;
-    has_new_cmd = true;          // 标记有新指令
-  }
-
-  // 5. 准备下一次接收(必须保留)
-  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
-  USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-
-  return (USBD_OK);
+    return USBD_OK;
   /* USER CODE END 6 */
 }
 

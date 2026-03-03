@@ -49,11 +49,6 @@
 RC_t RC;
 uint8_t RC_Data[18] = {0};
 
-// miniPC
-// 全局变量: 存储解析后的上位机指令
-A0_Frame a0_frame = {0};
-bool has_new_cmd = false;     // 新指令标志位
-
 //can
 motor_measure_t        motor_measure[4]        = {0};
 motor_measure_DM4310_t motor_measure_DM4310[1] = {0};
@@ -71,8 +66,6 @@ pid_t angle_pid_DM4310;
 
 pid_t speed_pid_CAN_RS05;
 pid_t angle_pid_CAN_RS05;
-
-float temp_target_6020 = 5470.0f;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -153,8 +146,8 @@ int main(void)
   CAN_Filter_Init();
 
   HAL_UART_Receive_DMA(&huart3, RC_Data, 18);
-  pidInit(&speed_pid_CAN_3508_M1_ID, 35, 0.1f, 0, 3000, 1000);  // 10000
-  pidInit(&speed_pid_CAN_3508_M2_ID, 35, 0.1f, 0, 3000, 1000);  // 10000
+  pidInit(&speed_pid_CAN_3508_M1_ID, 60, 0.1f, 20, 10000, 1000);  // 10000
+  pidInit(&speed_pid_CAN_3508_M2_ID, 60, 0.1f, 20, 10000, 1000);  // 10000
   pidInit(&speed_pid_CAN_2006_M3_ID, 45, 0.1f, 0, 5000, 600);  // 10000
 
   pidInit(&speed_pid_DM4310, 1, 0 , 0, 2.5f, 0);
