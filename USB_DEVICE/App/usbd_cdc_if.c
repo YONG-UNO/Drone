@@ -25,6 +25,8 @@
 #include <stdbool.h>
 
 #include "vpc.h"
+
+#include <math.h>
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -37,8 +39,8 @@ aim_receive_t aim_receive;
 
 
 aim_receive_decode_t aim_receive_decode = {
-    .target_yaw_aim = 0,
-    .target_pitch_aim = 0
+    .target_yaw_aim = 0.9971f,
+    .target_pitch_aim = 2.0f
 };
 /* USER CODE END PV */
 
@@ -285,9 +287,39 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
         aim_receive.end == 'e' &&
         aim_receive.type == 0xA0) {
 
-        aim_receive_decode.target_yaw_aim = aim_receive.yaw;
-        aim_receive_decode.target_pitch_aim = aim_receive.pitch;
+        if (aim_receive.find_bool == 1) { // 有目标
+
+            if (isnan(aim_receive.yaw) || isinf(aim_receive.yaw)) {
+                aim_receive.yaw = (1.5340f + 0.4602f) / 2; // NaN
+            }else if (aim_receive.yaw >= 1.5340f) {
+                aim_receive.yaw = 1.5340f;
+            }else if (aim_receive.yaw <= 0.4602f) {
+                aim_receive.yaw = 0.4602f;
+            }
+
+            // 接收当前的目标角度
+            aim_receive_decode.target_yaw_aim = aim_receive.yaw;
+            // 记录角度,供丢目标时维持云台角度,不突变
+            aim_receive_decode.target_yaw_aim_last = aim_receive.yaw;
+
+            if (isnan(aim_receive.pitch) || isinf(aim_receive.pitch)) {
+                aim_receive.pitch = (2.3f + 1.7f) / 2; // NaN
+            }else if (aim_receive.pitch >= 2.3f) {
+                aim_receive.pitch = 2.3f;
+            }else if (aim_receive.pitch <= 1.7f) {
+                aim_receive.pitch = 1.7f;
+            }
+
+            // 接收当前的目标角度
+            aim_receive_decode.target_pitch_aim = aim_receive.pitch;
+            // 记录角度,供丢目标时维持云台角度,不突变
+            aim_receive_decode.target_pitch_aim_last = aim_receive.pitch;
+
+        } else if (aim_receive.find_bool == 0) { // 丢目标
+            aim_receive_decode.target_yaw_aim = aim_receive_decode.target_yaw_aim_last;
+            aim_receive_decode.target_pitch_aim = aim_receive_decode.target_pitch_aim_last;
         }
+    }
 
     // 重新准备下一次接收
     USBD_CDC_SetRxBuffer(&hUsbDeviceFS, Buf);

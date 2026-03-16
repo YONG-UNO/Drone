@@ -3,6 +3,8 @@
 //
 
 #include "vpc.h"
+
+#include "bsp_can.h"
 #include "cmsis_os.h"
 #include "usbd_cdc_if.h"
 #include "dbus.h"
@@ -26,12 +28,11 @@ void USB(void const * argument) {
         .end = 'e'
     };
 
-    osDelay(5000);
     for (;;) {
-        aim_transmit.yaw = 1;// aim_receive.yaw;
+        aim_transmit.yaw = (float)motor_measure[3].ecd / 8192.0f * 2 * 3.14159265f;// aim_receive.yaw;
         aim_transmit.pitch = motor_measure_RS05[0].position;// aim_receive.pitch;
 
         CDC_Transmit_FS((uint8_t *)&aim_transmit,sizeof(aim_transmit));
-        osDelay(3);
+        osDelay(5);
     }
 }

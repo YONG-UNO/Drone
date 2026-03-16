@@ -19,14 +19,7 @@
 
 // CAN2:
 # define  CAN_6020_M4_ID    0x205    //204+1
-# define  CAN_4310_M5_ID    0x11
-# define   CAN_RS05_M6_ID    0x0C
-
-// dm4310配置
-# define  PMAX              12.5     // 位置
-# define  VMAX              45       // 速度
-# define  TMAX              18       // 扭矩
-
+# define  CAN_RS05_M6_ID    0x0C
 
 typedef struct {
     uint16_t  ecd;        //6020:机械角[0-8191]
@@ -52,21 +45,15 @@ extern "C" {
 
 
 extern motor_measure_t           motor_measure[4];
-extern motor_measure_DM4310_t    motor_measure_DM4310[1];
 extern motor_measure_RS05_t      motor_measure_RS05[1];
 
 void CAN_Filter_Init(void);
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan);
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan);
 void get_motor_measure(motor_measure_t *motor_measure,uint32_t StdId, uint8_t rx_data[]);
-void get_motor_measure_DM4310(motor_measure_DM4310_t *motor_measure_DM4310,uint32_t StdId, uint8_t rx_data[]);
 
 void sendCmdShoot(int16_t frictionWheel_l, int16_t frictionWheel_r, int16_t dial);
 void sendCmdGimbal(int16_t yaw);
-void sendCmdGimbal_DM4310(float torq);
-
-void DM4310_Enable(void);
-void DM4310_Disable(void);
 
 bool BSP_CAN_Send_Msg(CAN_HandleTypeDef *hcan, uint32_t can_id, uint8_t tx_data[8]);
 

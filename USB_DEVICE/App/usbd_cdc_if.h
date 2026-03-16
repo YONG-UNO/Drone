@@ -125,8 +125,9 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
 
      typedef struct {
          float target_yaw_aim;
-         float
-         target_pitch_aim;
+         float target_pitch_aim;
+         float target_yaw_aim_last;
+         float target_pitch_aim_last;
      } aim_receive_decode_t;
 
 /* USER CODE END EXPORTED_FUNCTIONS */

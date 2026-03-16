@@ -59,18 +59,14 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
             get_motor_measure(&motor_measure[n], rx_header.StdId, rx_data);
             break;
 
-        case CAN_4310_M5_ID:
-            n = rx_header.StdId - 17;                         // 4310: 0x11 - 17 = 0
-            get_motor_measure_DM4310(&motor_measure_DM4310[n], rx_header.StdId, rx_data);
-            break;
-
         case CAN_RS05_M6_ID:
             n = rx_header.StdId - 12;                          // RS05: 0x0C - 12 = 0
             get_motor_measure_RS05(&motor_measure_RS05[n], rx_header.StdId, rx_data);
             break;
 
         default:
-            break;                                              //如果一个都不匹配就直接退出
+            break;
+        //如果一个都不匹配就直接退出
     }
 }
 
@@ -113,15 +109,6 @@ void get_motor_measure(motor_measure_t *motor_measure,uint32_t StdId, uint8_t rx
             motor_measure->temperature= 0;
             motor_measure->torque = 0;
     }
-}
-
-void get_motor_measure_DM4310(motor_measure_DM4310_t *motor_measure_DM4310,uint32_t StdId, uint8_t rx_data[]) {
-    motor_measure_DM4310->p_int = (rx_data[1] << 8) | rx_data[2];
-    motor_measure_DM4310->v_int = (rx_data[3] << 4) | (rx_data[4] >> 4);
-    motor_measure_DM4310->t_int = ((rx_data[4] & 0xF) << 8) | rx_data[5];
-    motor_measure_DM4310->position = convert(motor_measure_DM4310->p_int);
-    motor_measure_DM4310->velocity = uint_to_float(motor_measure_DM4310 -> v_int, -VMAX, VMAX, 12);
-    motor_measure_DM4310->torque   = uint_to_float(motor_measure_DM4310 -> t_int, -TMAX, TMAX, 12);
 }
 
 void sendCmdShoot(int16_t frictionWheel_l, int16_t frictionWheel_r, int16_t dial) {
@@ -173,69 +160,6 @@ void sendCmdGimbal(int16_t yaw) {
     };
 }
 
-void sendCmdGimbal_DM4310(float torq) {
-    uint32_t send_mail_box;
-    CAN_TxHeaderTypeDef tx_header;
-    tx_header.StdId = 0x01;
-    tx_header.IDE   = CAN_ID_STD;
-    tx_header.RTR   = CAN_RTR_DATA;
-    tx_header.DLC   = 0x08;
-
-    float pos = 0,vel = 0,kp = 0,kd = 0;
-    uint16_t pos_tmp,vel_tmp,kp_tmp,kd_tmp,tor_tmp;
-    pos_tmp = float_to_uint(pos, -PMAX, PMAX, 16);
-    vel_tmp = float_to_uint(vel, -VMAX, VMAX, 12);
-    kp_tmp = float_to_uint(kp, 0,0,12);
-    kd_tmp = float_to_uint(kd, 0, 0, 12);
-    tor_tmp = float_to_uint(torq, -TMAX, TMAX, 12);
-
-    uint8_t gimbal_tx_message[8] = {0};
-    gimbal_tx_message[0] = (pos_tmp >> 8);
-    gimbal_tx_message[1] = pos_tmp;
-    gimbal_tx_message[2] = (vel_tmp >> 4);
-    gimbal_tx_message[3] = ((vel_tmp&0xF)<<4)|(kp_tmp>>8);
-    gimbal_tx_message[4] = kp_tmp;
-    gimbal_tx_message[5] = (kd_tmp >> 4);
-    gimbal_tx_message[6] = ((kd_tmp&0xF)<<4)|(tor_tmp>>8);
-    gimbal_tx_message[7] = tor_tmp;
-
-    HAL_CAN_AddTxMessage(&hcan2,&tx_header,gimbal_tx_message,&send_mail_box);
-}
-
-// DM4310使能
-uint8_t DM4310_Enable_Array[8]  = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};		  // 电机使能命令
-uint8_t DM4310_Disable_Array[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFD};       // 电机失能命令
-
-void DM4310_Enable(void) {
-    uint32_t send_mail_box;
-    CAN_TxHeaderTypeDef tx_header;
-    tx_header.StdId = 0x01;
-    tx_header.IDE   = CAN_ID_STD;
-    tx_header.RTR   = CAN_RTR_DATA;
-    tx_header.DLC   = 0x08;
-
-    if (HAL_CAN_AddTxMessage(&hcan2,&tx_header,DM4310_Enable_Array,&send_mail_box) != HAL_OK) {
-        if (HAL_CAN_AddTxMessage(&hcan2, &tx_header, DM4310_Enable_Array, &send_mail_box) != HAL_OK) {
-            HAL_CAN_AddTxMessage(&hcan2, &tx_header, DM4310_Enable_Array, &send_mail_box);
-        }
-    }
-}
-
-void DM4310_Disable(void) {
-    uint32_t send_mail_box;
-    CAN_TxHeaderTypeDef tx_header;
-    tx_header.StdId = 0x01;
-    tx_header.IDE   = CAN_ID_STD;
-    tx_header.RTR   = CAN_RTR_DATA;
-    tx_header.DLC   = 0x08;
-
-    if (HAL_CAN_AddTxMessage(&hcan2,&tx_header,DM4310_Disable_Array,&send_mail_box) != HAL_OK) {
-        if (HAL_CAN_AddTxMessage(&hcan2, &tx_header, DM4310_Disable_Array, &send_mail_box) != HAL_OK) {
-            HAL_CAN_AddTxMessage(&hcan2, &tx_header, DM4310_Disable_Array, &send_mail_box);
-        }
-    }
-}
-
 /**
  * @brief  BSP层CAN消息发送函数（兼容标准ID/扩展ID，带三重重试和空闲邮箱判断）
  * @param  hcan: CAN外设句柄指针，如 &hcan1、&hcan2
@@ -272,7 +196,7 @@ bool BSP_CAN_Send_Msg(CAN_HandleTypeDef *hcan, uint32_t can_id, uint8_t tx_data[
     } else if (can_id <= 0x1FFFFFFF) {
         // 拓展ID: 0x800~0x1FFFFFFF, 配置为拓展帧
         tx_header.IDE    = CAN_ID_EXT;
-        tx_header.StdId  = can_id;
+        tx_header.ExtId  = can_id;
     }else {
         // 超出拓展ID范围,直接返回发送失败
         return false;

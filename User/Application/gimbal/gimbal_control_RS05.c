@@ -7,84 +7,47 @@
 #include "bsp_can.h"
 #include "cmsis_os.h"
 
-#define MOTOR_POS_MIN    1.51f   // 电机位置下限
-#define MOTOR_POS_MAX    2.03f    // 电机位置上限
-#define MAX_TORQUE       2.0f    // 最大允许力矩
+//               上限位     中      下限位
+//rad:           1.7       2        2.3
+//dbus(RC.ch1):  -660      0        660
 
-/**
- * @todo 清零
- * @param rc_value
- * @return
- */
-float RC2Angle_RS05(int16_t rc_value);
+static float target_angel_compute(int16_t dbus);
 
 void gimbalControl_RS05(void const * argument) {
     (void)argument;      // 显示告知编译器此参数未使用
 
     // 局部变量：存储目标角度、目标速度、目标力矩
     float target_torque = 0.0f;
-    static float target_angle = 1.7f;
+    static float target_angle;
+
+    // 第一次使能就行
 
     for (;;) {
-        // ************************ 1. 电机基础使能/失能控制（遥控器S2开关） ************************
-        if (RC.s2 == 1 || RC.s2 == 2) {
-            RS05_Enable();  // 使能电机（S2拨到1档，进入可控状态）
-        } else if (RC.s2 == 3) {
-            RS05_Disable(); // 失能电机（S2拨到2/3档，电机锁死）
-            osDelay(20);
-            continue;
-        }
 
         if (RC.s2 == 1) {
-            target_angle = RC2Angle_RS05(RC.ch1);
+            RS05_Enable();
+
+            target_angle = target_angel_compute(RC.ch1);
+            RS05_MIT_Control(0.0f, 0.0f, 0.0f,0.0f,-target_torque);
+        }else if (RC.s2 == 3) {
+            RS05_MIT_Control(0.0f, 0.0f, 0.0f,0.0f,0.0f);
         }else if (RC.s2 == 2) {
             target_angle = aim_receive_decode.target_pitch_aim;
+            RS05_MIT_Control(0.0f, 0.0f, 0.0f,0.0f,-target_torque);
         }
 
-        // b. 串级PID计算（始终执行，即使电机失能）
         target_torque = pidCascade(&angle_pid_CAN_RS05,
                                    &speed_pid_CAN_RS05,
                                    target_angle,
                                    motor_measure_RS05[0].position,
                                    motor_measure_RS05[0].velocity);
 
-        // ************************ 3. 异常保护逻辑（位置超限 || 力矩超限） ************************
-        // if ( (motor_measure_RS05[0].position < MOTOR_POS_MIN || motor_measure_RS05[0].position > MOTOR_POS_MAX) ||
-        //      (fabs(target_torque) > MAX_TORQUE) ) {
-        //     RS05_Disable();  // 强制失能电机，停止所有控制输出
-        //     // 可选：添加异常标记（如存入全局变量，用于地面站上报故障）
-        //     // g_gimbal_error_flag = 1;
-        //     continue;        // 跳过后续电机驱动逻辑，直接进入下一轮循环
-        //      }
-
-        // ************************ 4. 仅在电机使能时，驱动RS05电机（失能时不发送指令） ************************
-
-        RS05_MIT_Control(
-            0.0f,  // 目标位置（rad）
-            0.0f,  // 目标速度（rad/s）
-            0.0f,        // KP（位置环比例系数，可调试）
-            0.0f,          // KD（速度环微分系数，可调试）
-            -target_torque  // 目标力矩（N·m，来自速度PID输出）
-        );
-
-        // ************************ 5. 任务延时（控制PID执行频率，20ms=50Hz） ************************
-        osDelay(20);
+        osDelay(1);
     }
 }
 
-float RC2Angle_RS05(int16_t rc_value) {
-
-    const float input_min = -660.0f;
-    const float input_max = 660.0f;
-    const float output_min = 1.5f;    // 对应摇杆660
-    const float output_max = 2.02f;     // 对应摇杆-660
-    const float output_range = output_max - output_min;   // 角度范围差值
-
-    // 限幅,防止摇杆超出 -660~660
-    rc_value = (rc_value < -660) ? -660 : (rc_value > 660) ? 660 : rc_value;
-
-    // 线性映射公式:(输入值 - 输入最小值) / (输入最大值 - 输入最小值) * (输出最大值 - 输出最小值) + 输出最小值
-    float target_angle = (input_max - rc_value) / (input_max - input_min) * output_range + output_min;
-
+// 从±660 to 电机弧度
+static float target_angel_compute(int16_t dbus) {
+    float target_angle = (float)(dbus + 660) / 1320.0f * (2.3f - 1.7f) + 1.7f;
     return target_angle;
 }

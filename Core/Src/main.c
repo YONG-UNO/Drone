@@ -51,18 +51,15 @@ uint8_t RC_Data[18] = {0};
 
 //can
 motor_measure_t        motor_measure[4]        = {0};
-motor_measure_DM4310_t motor_measure_DM4310[1] = {0};
 motor_measure_RS05_t   motor_measure_RS05[1]   = {0};
 
 // pid
 pid_t speed_pid_CAN_3508_M1_ID;
 pid_t speed_pid_CAN_3508_M2_ID;
 pid_t speed_pid_CAN_2006_M3_ID;
+pid_t angle_pid_CAN_2006_M3_ID;
 pid_t speed_pid_CAN_6020_M4_ID;
 pid_t angle_pid_CAN_6020_M4_ID;
-
-pid_t speed_pid_DM4310;
-pid_t angle_pid_DM4310;
 
 pid_t speed_pid_CAN_RS05;
 pid_t angle_pid_CAN_RS05;
@@ -84,9 +81,9 @@ pid_t angle_pid_CAN_RS05;
 float magneticField[3];
 float temperature = 1.0;
 float input_DM4310;
-float target_rpm_M1 = -6000.0f;
-float target_rpm_M2 = 6000.0f;
-float target_rpm_M3 = 6000.0f;//10800.0f
+float target_rpm_M1 = -10000.0f;
+float target_rpm_M2 = 10000.0f;
+float target_rpm_M3 = 8000.0f;//10800.0f
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -146,18 +143,17 @@ int main(void)
   CAN_Filter_Init();
 
   HAL_UART_Receive_DMA(&huart3, RC_Data, 18);
-  pidInit(&speed_pid_CAN_3508_M1_ID, 60, 0.1f, 20, 10000, 1000);  // 10000
-  pidInit(&speed_pid_CAN_3508_M2_ID, 60, 0.1f, 20, 10000, 1000);  // 10000
-  pidInit(&speed_pid_CAN_2006_M3_ID, 45, 0.1f, 0, 5000, 600);  // 10000
+  pidInit(&speed_pid_CAN_3508_M1_ID, 120, 0.1f, 20, 10000, 1000);  // 10000
+  pidInit(&speed_pid_CAN_3508_M2_ID, 120, 0.1f, 20, 10000, 1000);  // 10000
+  pidInit(&speed_pid_CAN_2006_M3_ID, 170, 0.1f, 0, 9000, 600);  // 10000
+  pidInit(&angle_pid_CAN_2006_M3_ID, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);  // 10000
 
-  pidInit(&speed_pid_DM4310, 1, 0 , 0, 2.5f, 0);
-  pidInit(&angle_pid_DM4310, 0.01f, 0.01f, 0.2f, 2, 0.03f);
 
-  pidInit(&speed_pid_CAN_6020_M4_ID, 25.0f, 0.0f, 0, 25000, 200);  // voltageMax 25000
-  pidInit(&angle_pid_CAN_6020_M4_ID, 7.0f, 0.001, 3, 800, 200);
+  pidInit(&speed_pid_CAN_6020_M4_ID, 70.0f, 0.05f, 0.0f, 25000, 500);  // voltageMax 25000
+  pidInit(&angle_pid_CAN_6020_M4_ID, 570.0f, 1.0f, 20.0f, 800, 200);
 
   pidInit(&speed_pid_CAN_RS05, 0.35f,0,0.2,3.0f,1.0f);
-  pidInit(&angle_pid_CAN_RS05, 20,0.1f,15,30,3.0f);
+  pidInit(&angle_pid_CAN_RS05, 30,0.1f,15,30,3.0f);
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
