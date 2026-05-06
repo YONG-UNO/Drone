@@ -6,7 +6,7 @@
 #define GIMBAL_CONTROL_H
 #include "dbus.h"
 #include "usbd_cdc_if.h"
-#include "PID/pid.h"
+#include "pid.h"
 
 extern RC_t RC;
 

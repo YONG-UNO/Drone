@@ -36,9 +36,9 @@
 #include "bsp_can.h"
 #include "RS05.h"
 #include "dbus.h"
-#include "PID/pid.h"
+#include "pid.h"
 #include "bsp_iic.h"
-#include "vpc.h"
+#include "vpc.hpp"
 #include "ist8310.h"
 #include "ssd1306.h"
 /* USER CODE END Includes */
@@ -276,8 +276,7 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.

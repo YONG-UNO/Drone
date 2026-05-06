@@ -27,6 +27,10 @@ typedef struct {
     float error[3];          // 误差缓冲区 (当前,上次,上上次)
 }pid_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void pidInit(pid_t *pid, float kp, float ki, float kd, float max_output, float max_output_i);
 void pidReset(pid_t *pid);
 void pidCascadeReset(pid_t *angle_pid, pid_t *speed_pid);
@@ -36,5 +40,9 @@ float pidCascade(pid_t *angle_pid, pid_t *speed_pid,
                  float angle_target,   float angle_feedback,
                  float speed_feedback);
 void pidOverZero_8192(const float *target, float *feedback);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //PID_H

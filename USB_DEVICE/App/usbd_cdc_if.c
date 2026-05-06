@@ -24,7 +24,7 @@
 /* USER CODE BEGIN INCLUDE */
 #include <stdbool.h>
 
-#include "vpc.h"
+#include "vpc.hpp"
 
 #include <math.h>
 /* USER CODE END INCLUDE */

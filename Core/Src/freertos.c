@@ -50,9 +50,9 @@
 osThreadId GimbalHandle;
 osThreadId ShootHandle;
 osThreadId AutoAimingHandle;
-osThreadId myTask04Handle;
 osThreadId Gimbal_RS05Handle;
 osThreadId USBTaskHandle;
+osThreadId myTask06Handle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -62,9 +62,9 @@ osThreadId USBTaskHandle;
 void gimbalControl(void const * argument);
 void shootControl(void const * argument);
 void autoAiming(void const * argument);
-void Display(void const * argument);
 void gimbalControl_RS05(void const * argument);
 void USB(void const * argument);
+void gc_task(void const * argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -124,10 +124,6 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(AutoAiming, autoAiming, osPriorityIdle, 0, 256);
   AutoAimingHandle = osThreadCreate(osThread(AutoAiming), NULL);
 
-  /* definition and creation of myTask04 */
-  osThreadDef(myTask04, Display, osPriorityIdle, 0, 256);
-  myTask04Handle = osThreadCreate(osThread(myTask04), NULL);
-
   /* definition and creation of Gimbal_RS05 */
   osThreadDef(Gimbal_RS05, gimbalControl_RS05, osPriorityIdle, 0, 256);
   Gimbal_RS05Handle = osThreadCreate(osThread(Gimbal_RS05), NULL);
@@ -135,6 +131,10 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of USBTask */
   osThreadDef(USBTask, USB, osPriorityIdle, 0, 256);
   USBTaskHandle = osThreadCreate(osThread(USBTask), NULL);
+
+  /* definition and creation of myTask06 */
+  osThreadDef(myTask06, gc_task, osPriorityIdle, 0, 128);
+  myTask06Handle = osThreadCreate(osThread(myTask06), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -198,24 +198,6 @@ __weak void autoAiming(void const * argument)
   /* USER CODE END autoAiming */
 }
 
-/* USER CODE BEGIN Header_Display */
-/**
-* @brief Function implementing the myTask04 thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_Display */
-__weak void Display(void const * argument)
-{
-  /* USER CODE BEGIN Display */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END Display */
-}
-
 /* USER CODE BEGIN Header_gimbalControl_RS05 */
 /**
 * @brief Function implementing the Gimbal_RS05 thread.
@@ -250,6 +232,24 @@ __weak void USB(void const * argument)
     osDelay(1);
   }
   /* USER CODE END USB */
+}
+
+/* USER CODE BEGIN Header_gc_task */
+/**
+* @brief Function implementing the myTask06 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_gc_task */
+__weak void gc_task(void const * argument)
+{
+  /* USER CODE BEGIN gc_task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END gc_task */
 }
 
 /* Private application code --------------------------------------------------*/

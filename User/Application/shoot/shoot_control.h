@@ -5,7 +5,7 @@
 #ifndef SHOOT_CONTROL_H
 #define SHOOT_CONTROL_H
 
-#include "PID/pid.h"
+#include "pid.h"
 
 extern float target_rpm_M1;
 extern float target_rpm_M2;

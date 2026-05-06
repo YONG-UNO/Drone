@@ -2,15 +2,12 @@
 // Created by DingYong on 2025/10/4.
 //
 
-#include "gimbal_control_RS05.h"
-
+#include "gimbal_control_RS05.hpp"
 #include "bsp_can.h"
-#include "cmsis_os.h"
 
 //               上限位     中      下限位
-//rad:           1.7       2        2.3
+//rad:           0.7       1        1.3
 //dbus(RC.ch1):  -660      0        660
-
 static float target_angel_compute(int16_t dbus);
 
 void gimbalControl_RS05(void const * argument) {
@@ -18,17 +15,19 @@ void gimbalControl_RS05(void const * argument) {
 
     // 局部变量：存储目标角度、目标速度、目标力矩
     float target_torque = 0.0f;
-    static float target_angle;
-
-    // 第一次使能就行
+    static float target_angle = 0.7f;
+    static float temp_torque = 0.0f;
+    static float temp_angle = 0.0f;
 
     for (;;) {
 
+        // 第一次使能就行
         if (RC.s2 == 1) {
             RS05_Enable();
-
-            target_angle = target_angel_compute(RC.ch1);
-            RS05_MIT_Control(0.0f, 0.0f, 0.0f,0.0f,-target_torque);
+            temp_angle = target_angel_compute(RC.ch1);
+            temp_torque = 0.4804 * temp_angle * temp_angle -0.713 * temp_angle -0.0063;
+            target_angle = output_angle;//target_angel_compute(RC.ch1);
+            RS05_MIT_Control(0.0f, 0.0f, 0.0f,0.0f,-temp_torque);
         }else if (RC.s2 == 3) {
             RS05_MIT_Control(0.0f, 0.0f, 0.0f,0.0f,0.0f);
         }else if (RC.s2 == 2) {
@@ -48,6 +47,6 @@ void gimbalControl_RS05(void const * argument) {
 
 // 从±660 to 电机弧度
 static float target_angel_compute(int16_t dbus) {
-    float target_angle = (float)(dbus + 660) / 1320.0f * (2.3f - 1.7f) + 1.7f;
+    float target_angle = (float)(dbus + 660) / 1320.0f * (1.3f - 0.7f) + 0.7f;
     return target_angle;
 }

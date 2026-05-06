@@ -39,13 +39,15 @@ typedef struct {
     float torque;
 } motor_measure_DM4310_t;
 
+
+extern motor_measure_t           motor_measure[4];
+extern motor_measure_RS05_t      motor_measure_RS05[1];
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-extern motor_measure_t           motor_measure[4];
-extern motor_measure_RS05_t      motor_measure_RS05[1];
 
 void CAN_Filter_Init(void);
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan);

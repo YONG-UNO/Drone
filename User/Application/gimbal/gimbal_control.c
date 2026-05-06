@@ -9,7 +9,7 @@
 
 //               左限位     中      右限位
 //               600      1300     2000
-//rad:           0.4602  0.9971   1.5340
+//rad:           0.9970  1.5340   2.071
 //dbus(RC.ch0):  -660      0        660
 
 static float target_angel_compute(int16_t dbus);
@@ -32,7 +32,7 @@ void gimbalControl(void const * argument) {
         // manufacture enable
         if (RC.s2 == 1) {
             target_angle = target_angel_compute(RC.ch0);
-            sendCmdGimbal((int16_t)target_torque);
+            sendCmdGimbal((int16_t)0.0f);
         }
 
         // auto aim
@@ -53,7 +53,7 @@ void gimbalControl(void const * argument) {
 
 // 从±660 to 电机弧度
 static float target_angel_compute(int16_t dbus) {
-    float target_angle = (float)(dbus + 660) / 1320.0f * (1.5340f - 0.4602f) + 0.4602f;
+    float target_angle = (float)(dbus + 660) / 1320.0f * (2.071f - 0.9970f) + 0.9970;
     return target_angle;
 }
 

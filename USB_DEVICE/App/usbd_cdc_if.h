@@ -22,7 +22,6 @@
 
 #ifndef __USBD_CDC_IF_H__
 #define __USBD_CDC_IF_H__
-#include <stdbool.h>
 
 #ifdef __cplusplus
  extern "C" {
