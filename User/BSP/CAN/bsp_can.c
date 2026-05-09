@@ -15,7 +15,6 @@
 //             CAN_2006_M3_ID
 
 // CAN2:fifo1: CAN_6020_M4_ID
-//             CAN_4310_M5_ID
 
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {

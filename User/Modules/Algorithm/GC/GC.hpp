@@ -14,13 +14,12 @@
 
 #define RAD_TO_DEG         57.29578f
 #define DEG_TO_RAD         0.0174533f
-#define SUM_POINTS        200
+#define SUM_POINTS         200
 
 #define DEFAULT_STEP_RAD   (1.0f * DEG_TO_RAD) // 步进角1度
 #define DEFAULT_WAIT_SEC   3.0f  // 停顿3s,稳态后开始采样
 
 class GravityCompensator {
-
 public:
     float angles[SUM_POINTS];
     float torques[SUM_POINTS];
