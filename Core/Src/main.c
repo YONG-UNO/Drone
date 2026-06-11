@@ -40,7 +40,9 @@
 #include "bsp_iic.h"
 #include "vpc.hpp"
 #include "ist8310.h"
+#include "robot_status.h"
 #include "ssd1306.h"
+#include "video_transfer/video_transfer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -79,11 +81,7 @@ pid_t angle_pid_CAN_RS05;
 
 /* USER CODE BEGIN PV */
 float magneticField[3];
-float temperature = 1.0;
-float input_DM4310;
-float target_rpm_M1 = -10000.0f;
-float target_rpm_M2 = 10000.0f;
-float target_rpm_M3 = 8000.0f;//10800.0f
+float temperature;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -135,25 +133,36 @@ int main(void)
   MX_I2C2_Init();
   MX_SPI1_Init();
   MX_TIM10_Init();
+  MX_USART1_UART_Init();
+  MX_USART6_UART_Init();
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 
-  OLED_init();
-  MX_USB_DEVICE_Init();
-  // ist8310Init();
-  CAN_Filter_Init();
+    vt_init();
+    OLED_init();
+    MX_USB_DEVICE_Init();
+    // ist8310Init();
+    CAN_Filter_Init();
+    robot_status_init();
 
   HAL_UART_Receive_DMA(&huart3, RC_Data, 18);
   pidInit(&speed_pid_CAN_3508_M1_ID, 120, 0.1f, 20, 10000, 1000);  // 10000
   pidInit(&speed_pid_CAN_3508_M2_ID, 120, 0.1f, 20, 10000, 1000);  // 10000
-  pidInit(&speed_pid_CAN_2006_M3_ID, 170, 0.1f, 0, 9000, 600);  // 10000
-  pidInit(&angle_pid_CAN_2006_M3_ID, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);  // 10000
+  pidInit(&speed_pid_CAN_2006_M3_ID, 1000.0f, 0.0f, 0, 10000, 600);  // 10000
+  pidInit(&angle_pid_CAN_2006_M3_ID, 5.0f, 0.0f, 0.0f, 2000.0f, 0.0f);  // 10000
 
 
-  pidInit(&speed_pid_CAN_6020_M4_ID, 70.0f, 0.05f, 0.0f, 25000, 500);  // voltageMax 25000
-  pidInit(&angle_pid_CAN_6020_M4_ID, 570.0f, 1.0f, 20.0f, 800, 200);
+  pidInit(&speed_pid_CAN_6020_M4_ID, 30.0f, 0.05f, 0.0f, 25000, 0);  // voltageMax 25000
+  pidInit(&angle_pid_CAN_6020_M4_ID, 4000.0f, 0.8f, 200.0f, 600, 100); //p 8000
 
-  pidInit(&speed_pid_CAN_RS05, 0.35f,0,0.2,3.0f,1.0f);
-  pidInit(&angle_pid_CAN_RS05, 30,0.1f,15,30,3.0f);
+  pidInit(&speed_pid_CAN_RS05, 0.5f,0,0.0,5.0f,0.0f);
+  pidInit(&angle_pid_CAN_RS05, 500,0.1f,0.0f,4.0f,0.0f); // p 1000
+
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_9, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, GPIO_PIN_RESET);
+
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
@@ -228,6 +237,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     rcDecode();
   } else {
     // 丢弃,等待下一帧
+  }
+
+  if (huart == VT_UART_HANDEL) {
+      vt_decode(vt_rx_buf,&vt_data);
   }
 }
 

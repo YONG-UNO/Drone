@@ -14,7 +14,7 @@ set(CMAKE_AR            arm-none-eabi-ar)
 
 # 公共选项（C/C++/ASM 都用）
 add_compile_options(
-    -g -Og   # 编译优化
+    -g -O0   # 编译优化
     -mcpu=cortex-m4
     -mthumb
     -mfloat-abi=hard
@@ -66,28 +66,35 @@ endif()
 add_executable(${PROJECT_NAME}
         # 你的 C 文件
         User/Modules/Algorithm/PID/pid.c
-        User/Application/VPC/vpc.cpp
         User/Modules/bmi088/bmi088.c
         User/Modules/ist8310/ist8310.c
         User/Modules/ssd1306/ssd1306.c
+        User/Modules/WS2812b/WS2812b.c
         User/Application/display/display.c
-        User/Application/gimbal/gimbal_control.c
+        User/Application/gimbal/gimbal_control_yaw.c
         User/Application/shoot/shoot_control.c
+        User/Application/control_switch/control_switch.c
+        User/Application/LED/led_task.c
         User/BSP/CAN/bsp_can.c
         User/BSP/IIC/bsp_iic.c
         User/BSP/SPI/spi_bmi088/bsp_spi_bmi088.c
         User/BSP/UART/dbus.c
         User/Modules/Math/conversion.c
         User/Modules/Math/limit.c
+        User/BSP/UART/video_transfer/video_transfer.c
 
-        # C++
         User/Modules/RS05/RS05.cpp
-        User/Application/gc/GC_task.cpp
-                User/Application/gimbal/gimbal_control_RS05.cpp
+        User/Application/gimbal/gimbal_control_pitch.cpp
+        User/Application/VPC/vpc.cpp
 
 
     # 启动文件（必须）
     ${STARTUP_FILES}
+        User/Application/LED/led_task.c
+        User/Application/LED/led_task.h
+        User/Modules/robot_status/robot_status.c
+        User/Modules/ui/ui.c
+        User/Application/ui_task/ui_show.c
 )
 
 # 包含 HAL 库
@@ -99,18 +106,25 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}/User/Application/gimbal
         ${CMAKE_SOURCE_DIR}/User/Application/shoot
         ${CMAKE_SOURCE_DIR}/User/Application/VPC
+        ${CMAKE_SOURCE_DIR}/User/Application/control_switch
         ${CMAKE_SOURCE_DIR}/User/Modules/Algorithm/PID
-        ${CMAKE_SOURCE_DIR}/User/Modules/Algorithm/GC
+#        ${CMAKE_SOURCE_DIR}/User/Modules/Algorithm/GC
         ${CMAKE_SOURCE_DIR}/User/Application/gc
+        ${CMAKE_SOURCE_DIR}/User/Application/LED
         ${CMAKE_SOURCE_DIR}/User/Modules/bmi088
         ${CMAKE_SOURCE_DIR}/User/Modules/ist8310
+        ${CMAKE_SOURCE_DIR}/User/Modules/WS2812b
         ${CMAKE_SOURCE_DIR}/User/Modules/Math
         ${CMAKE_SOURCE_DIR}/User/Modules/RS05
         ${CMAKE_SOURCE_DIR}/User/Modules/ssd1306
+        ${CMAKE_SOURCE_DIR}/User/Modules/robot_status
+        ${CMAKE_SOURCE_DIR}/User/Modules/ui
         ${CMAKE_SOURCE_DIR}/User/BSP/CAN
         ${CMAKE_SOURCE_DIR}/User/BSP/IIC
         ${CMAKE_SOURCE_DIR}/User/BSP/SPI/spi_bmi088
         ${CMAKE_SOURCE_DIR}/User/BSP/UART
+        ${CMAKE_SOURCE_DIR}/User/BSP/UART/video_transfer
+
 )
 
 # 链接驱动库

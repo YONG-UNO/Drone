@@ -6,7 +6,7 @@
 
 #include "GC.hpp"
 #include "cmsis_os.h"
-#include "gimbal_control_RS05.hpp"
+#include "gimbal_control_pitch.hpp"
 
 GravityCompensator gc;
 

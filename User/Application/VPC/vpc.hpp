@@ -21,7 +21,15 @@ typedef struct {
 } aim_transmit_t;
 #pragma pack()
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* function */
 void USB(void const * argument);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //VPC_H

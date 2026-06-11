@@ -37,7 +37,7 @@ public:
             current_angle = DEFAULT_MIN_RAD + ((float)id + 1) * (DEFAULT_MAX_RAD - DEFAULT_MIN_RAD) / (SUM_POINTS - 1);
             id++;
 
-            osDelay(5000);
+            osDelay(2000);
             if (current_angle >= DEFAULT_MAX_RAD) {
                 fit_quadratic();
                 current_angle = DEFAULT_MAX_RAD;

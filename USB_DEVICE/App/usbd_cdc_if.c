@@ -25,7 +25,8 @@
 #include <stdbool.h>
 
 #include "vpc.hpp"
-
+#include "gimbal_control_yaw.h"
+#include "gimbal_control_pitch.hpp"
 #include <math.h>
 /* USER CODE END INCLUDE */
 
@@ -35,12 +36,13 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+static bool first_no_target = true;
+
 aim_receive_t aim_receive;
 
-
-aim_receive_decode_t aim_receive_decode = {
-    .target_yaw_aim = 0.9971f,
-    .target_pitch_aim = 2.0f
+aim_receive_use_t aim_receive_use = {
+    .target_yaw_aim = 4.7f,
+    .target_pitch_aim = 1.0f,
 };
 /* USER CODE END PV */
 
@@ -287,37 +289,34 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
         aim_receive.end == 'e' &&
         aim_receive.type == 0xA0) {
 
-        if (aim_receive.find_bool == 1) { // 有目标
+        if (aim_receive.find_bool == '1') { // 有目标
+
+            aim_receive_use.target_yaw_aim = aim_receive.yaw;
+            aim_receive_use.target_pitch_aim = aim_receive.pitch;
 
             if (isnan(aim_receive.yaw) || isinf(aim_receive.yaw)) {
-                aim_receive.yaw = (1.5340f + 0.4602f) / 2; // NaN
-            }else if (aim_receive.yaw >= 1.5340f) {
-                aim_receive.yaw = 1.5340f;
-            }else if (aim_receive.yaw <= 0.4602f) {
-                aim_receive.yaw = 0.4602f;
+                aim_receive_use.target_yaw_aim = YAW_MID; // NaN
+            }else if (aim_receive.yaw >= YAW_MAX) {
+                aim_receive_use.target_yaw_aim = YAW_MAX;
+            }else if (aim_receive.yaw <= YAW_MIN) {
+                aim_receive_use.target_yaw_aim = YAW_MIN;
             }
-
-            // 接收当前的目标角度
-            aim_receive_decode.target_yaw_aim = aim_receive.yaw;
-            // 记录角度,供丢目标时维持云台角度,不突变
-            aim_receive_decode.target_yaw_aim_last = aim_receive.yaw;
 
             if (isnan(aim_receive.pitch) || isinf(aim_receive.pitch)) {
-                aim_receive.pitch = (2.3f + 1.7f) / 2; // NaN
-            }else if (aim_receive.pitch >= 2.3f) {
-                aim_receive.pitch = 2.3f;
-            }else if (aim_receive.pitch <= 1.7f) {
-                aim_receive.pitch = 1.7f;
+                aim_receive_use.target_pitch_aim = PITCH_MID; // NaN
+            }else if (aim_receive.pitch >= PITCH_MAX) {
+                aim_receive_use.target_pitch_aim = PITCH_MAX;
+            }else if (aim_receive.pitch <= PITCH_MIN) {
+                aim_receive_use.target_pitch_aim = PITCH_MIN;
             }
 
-            // 接收当前的目标角度
-            aim_receive_decode.target_pitch_aim = aim_receive.pitch;
-            // 记录角度,供丢目标时维持云台角度,不突变
-            aim_receive_decode.target_pitch_aim_last = aim_receive.pitch;
+            first_no_target = false;
 
-        } else if (aim_receive.find_bool == 0) { // 丢目标
-            aim_receive_decode.target_yaw_aim = aim_receive_decode.target_yaw_aim_last;
-            aim_receive_decode.target_pitch_aim = aim_receive_decode.target_pitch_aim_last;
+        } else if (aim_receive.find_bool == '0') { // 丢目标
+            if (first_no_target == true) {
+                aim_receive_use.target_yaw_aim   = YAW_MID;
+                aim_receive_use.target_pitch_aim = PITCH_MID;
+            }
         }
     }
 

@@ -53,6 +53,9 @@ osThreadId AutoAimingHandle;
 osThreadId Gimbal_RS05Handle;
 osThreadId USBTaskHandle;
 osThreadId myTask06Handle;
+osThreadId myTask07Handle;
+osThreadId myTask08Handle;
+osThreadId myTask09Handle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -65,6 +68,9 @@ void autoAiming(void const * argument);
 void gimbalControl_RS05(void const * argument);
 void USB(void const * argument);
 void gc_task(void const * argument);
+void control_switch(void const * argument);
+void led(void const * argument);
+void ui_task(void const * argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -135,6 +141,18 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of myTask06 */
   osThreadDef(myTask06, gc_task, osPriorityIdle, 0, 128);
   myTask06Handle = osThreadCreate(osThread(myTask06), NULL);
+
+  /* definition and creation of myTask07 */
+  osThreadDef(myTask07, control_switch, osPriorityIdle, 0, 128);
+  myTask07Handle = osThreadCreate(osThread(myTask07), NULL);
+
+  /* definition and creation of myTask08 */
+  osThreadDef(myTask08, led, osPriorityIdle, 0, 128);
+  myTask08Handle = osThreadCreate(osThread(myTask08), NULL);
+
+  /* definition and creation of myTask09 */
+  osThreadDef(myTask09, ui_task, osPriorityIdle, 0, 128);
+  myTask09Handle = osThreadCreate(osThread(myTask09), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -250,6 +268,60 @@ __weak void gc_task(void const * argument)
     osDelay(1);
   }
   /* USER CODE END gc_task */
+}
+
+/* USER CODE BEGIN Header_control_switch */
+/**
+* @brief Function implementing the myTask07 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_control_switch */
+__weak void control_switch(void const * argument)
+{
+  /* USER CODE BEGIN control_switch */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END control_switch */
+}
+
+/* USER CODE BEGIN Header_led */
+/**
+* @brief Function implementing the myTask08 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_led */
+__weak void led(void const * argument)
+{
+  /* USER CODE BEGIN led */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END led */
+}
+
+/* USER CODE BEGIN Header_ui_task */
+/**
+* @brief Function implementing the myTask09 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_ui_task */
+__weak void ui_task(void const * argument)
+{
+  /* USER CODE BEGIN ui_task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END ui_task */
 }
 
 /* Private application code --------------------------------------------------*/

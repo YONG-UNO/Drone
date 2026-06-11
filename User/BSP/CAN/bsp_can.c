@@ -16,6 +16,7 @@
 
 // CAN2:fifo1: CAN_6020_M4_ID
 
+static int32_t total_pulse = 0;
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 
@@ -83,10 +84,32 @@ void get_motor_measure(motor_measure_t *motor_measure,uint32_t StdId, uint8_t rx
             break;
 
         case CAN_2006_M3_ID:
-            motor_measure->last_ecd      = motor_measure->ecd;
-            motor_measure->ecd           = ((uint16_t)rx_data[0] << 8  | (uint16_t)rx_data[1]);
-            motor_measure->speed_rpm     = ((int16_t) rx_data[2] << 8  | (int16_t)rx_data[3]);
-            motor_measure->torque        = ((int16_t) rx_data[4] << 8  | (int16_t)rx_data[5]);
+            uint16_t raw_ecd = ((uint16_t)rx_data[0] << 8) | rx_data[1];
+
+            // 计算差值（处理过零）
+            int32_t delta = raw_ecd - motor_measure->last_ecd;
+            if (delta < -4096) delta += 8192;
+            if (delta > 4096)  delta -= 8192;
+
+            // 累计转子总脉冲
+            total_pulse += delta;
+
+            // ==============================================
+            // 核心公式：输出轴一圈 = 0 ~ 8191
+            // ==============================================
+            // 转子 8192×36 = 输出轴 1圈
+            // 输出轴位置 = total_pulse % (8192×36)
+            // 范围：0 ~ 8191
+
+            int32_t output_pulse = total_pulse % (8192 * 36);
+            if (output_pulse < 0) output_pulse += 8192 * 36;
+
+            // 最终 ecd = 输出轴 0~8191
+            motor_measure->ecd = (uint16_t)(output_pulse / 36);
+
+            motor_measure->last_ecd = raw_ecd;
+            motor_measure->speed_rpm = ((int16_t)rx_data[2] << 8) | rx_data[3];
+            motor_measure->torque    = ((int16_t)rx_data[4] << 8) | rx_data[5];
             motor_measure->given_current = 0;
             motor_measure->temperature   = 0;
             break;

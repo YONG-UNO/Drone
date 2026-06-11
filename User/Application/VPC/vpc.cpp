@@ -8,7 +8,7 @@
 #include "cmsis_os.h"
 #include "usbd_cdc_if.h"
 #include "dbus.h"
-#include "gimbal_control_RS05.hpp"
+#include "gimbal_control_pitch.hpp"
 
 // 接收逻辑写在中断（仅做校验 + 缓存），解析 + 发送回复写在 FreeRTOS 任务，
 // 绝对不要把发送回复直接写在中断里！
